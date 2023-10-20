@@ -23,7 +23,10 @@ contract KronosSeedSale is Owned, ERC721 {
     uint256 public totalSupply;
     string public baseURI;
 
-    uint256 public constant MINIMUM_PAYMENT = 150e6;
+    //total amount committed by all addresses
+    uint256 public totalUSDTokenAmountCommitted;
+
+    uint256 public constant MINIMUM_PAYMENT = 250e6;
     uint256 public constant MAXIMUM_TOTAL_PAYMENT = 5000e6;
     uint256 public constant NFT_ID_OFFSET = 1;
 
@@ -52,6 +55,7 @@ contract KronosSeedSale is Owned, ERC721 {
 
         IERC20(USDT).transferFrom(msg.sender, address(this), amount);
         USDTokenAmountCommitted[msg.sender] += amount;
+        totalUSDTokenAmountCommitted += amount;
 
         emit Payment(msg.sender, amount, true);
     }
@@ -64,6 +68,7 @@ contract KronosSeedSale is Owned, ERC721 {
 
         IERC20(USDC).transferFrom(msg.sender, address(this), amount);
         USDTokenAmountCommitted[msg.sender] += amount;
+        totalUSDTokenAmountCommitted += amount;
 
         emit Payment(msg.sender, amount, false);
     }
