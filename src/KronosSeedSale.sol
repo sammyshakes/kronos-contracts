@@ -18,17 +18,23 @@ contract KronosSeedSale is Owned, ERC721 {
     address USDT;
     address USDC;
 
-    bool seedSaleActive;
+    bool public seedSaleActive;
 
     uint256 public totalSupply;
     string public baseURI;
+
+    uint256 public constant MINIMUM_PAYMENT = 150e6;
+    uint256 public constant MAXIMUM_TOTAL_PAYMENT = 5000e6;
+    uint256 public constant NFT_ID_OFFSET = 1;
 
     // starts at 1, but actual minted id will be nftIDForAddress - 1
     // this mapping also acts as the whitelist
     mapping(address => uint256) public nftIDForAddress;
     mapping(address => uint256) public USDTokenAmountCommitted;
 
-    constructor(address _USDT, address _USDC) ERC721("Kronos Offical Seed Sale NFT", "Titan") Owned(msg.sender) {
+    event Payment(address from, uint256 amount, bool USDT);
+
+    constructor(address _USDT, address _USDC) ERC721("Kronos Offical Seed Sale NFT", "TITAN") Owned(msg.sender) {
         USDT = _USDT;
         USDC = _USDC;
     }
@@ -41,28 +47,35 @@ contract KronosSeedSale is Owned, ERC721 {
     }
 
     // no permit, approval required
-    function payWithUSDT(uint256 value) external {
-        require(seedSaleActive, "Seed Sale must be active");
-        require(nftIDForAddress[msg.sender] > 0, "Address must be on the whitelist");
+    function payWithUSDT(uint256 amount) external {
+        validation(amount);
 
-        IERC20(USDT).transferFrom(msg.sender, address(this), value);
-        USDTokenAmountCommitted[msg.sender] += value;
+        IERC20(USDT).transferFrom(msg.sender, address(this), amount);
+        USDTokenAmountCommitted[msg.sender] += amount;
+
+        emit Payment(msg.sender, amount, true);
     }
 
     // permit, no approval required
-    function payWithUSDC(uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
-        IERC20Permit(USDC).permit(msg.sender, address(this), value, deadline, v, r, s);
-        require(seedSaleActive, "Seed Sale must be active");
-        require(nftIDForAddress[msg.sender] > 0, "Address must be on the whitelist");
+    function payWithUSDC(uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external {
+        IERC20Permit(USDC).permit(msg.sender, address(this), amount, deadline, v, r, s);
 
-        IERC20(USDC).transferFrom(msg.sender, address(this), value);
-        USDTokenAmountCommitted[msg.sender] += value;
+        validation(amount);
+
+        IERC20(USDC).transferFrom(msg.sender, address(this), amount);
+        USDTokenAmountCommitted[msg.sender] += amount;
+
+        emit Payment(msg.sender, amount, false);
     }
 
     function mint() external {
-        require(nftIDForAddress[msg.sender] > 0, "Address must be on the whitelist");
-        require(_ownerOf[nftIDForAddress[msg.sender] - 1] == address(0), "NFT is already minted");
-        _safeMint(msg.sender, nftIDForAddress[msg.sender] - 1);
+        require(seedSaleActive, "Seed Sale must be active");
+        require(_ownerOf[nftIDForAddress[msg.sender] - NFT_ID_OFFSET] == address(0), "NFT is already minted");
+        require(
+            USDTokenAmountCommitted[msg.sender] >= MINIMUM_PAYMENT,
+            "Address must have made a minimum payment of USD $150"
+        );
+        _safeMint(msg.sender, nftIDForAddress[msg.sender] - NFT_ID_OFFSET);
         totalSupply += 1;
     }
 
@@ -70,12 +83,26 @@ contract KronosSeedSale is Owned, ERC721 {
         seedSaleActive = !seedSaleActive;
     }
 
-    function setBaseURI(string memory newURI) public onlyOwner {
+    function setBaseURI(string calldata newURI) external onlyOwner {
         baseURI = newURI;
+    }
+
+    function validation(uint256 amount) internal {
+        require(seedSaleActive, "Seed Sale must be active");
+        require(nftIDForAddress[msg.sender] > 0, "Address must be on the whitelist");
+        require(amount >= MINIMUM_PAYMENT, "Amount must be a minimum of USD $150");
+        require(
+            USDTokenAmountCommitted[msg.sender] + amount <= MAXIMUM_TOTAL_PAYMENT,
+            "Total amount must not exceed USD $5000"
+        );
     }
 
     function tokenURI(uint256 tokenID) public view override returns (string memory) {
         require(tokenID < totalSupply, "This token does not exist");
         return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenID.toString())) : "";
+    }
+
+    function withdrawTokens(address token) external onlyOwner {
+        IERC20(token).transfer(msg.sender, IERC20(token).balanceOf(address(this)));
     }
 }
