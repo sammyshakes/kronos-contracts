@@ -17,7 +17,7 @@ contract KronosSeedSaleTest is Test {
     address public owner;
     address public whitelistedAddress;
 
-    uint256 public minCommitAmount = 150e6;
+    uint256 public minCommitAmount = 250e6;
 
     function setUp() public {
         user1 = address(0x1);
@@ -44,6 +44,15 @@ contract KronosSeedSaleTest is Test {
 
         // Add an address to the whitelist
         seedSale.addToWhitelist(wallets, nftIDs);
+
+        //verify seed sale is not active
+        assertEq(seedSale.seedSaleActive(), false, "Seed sale should not be active");
+
+        //verify minimum commit amount is correct
+        assertEq(seedSale.MINIMUM_PAYMENT(), 250e6, "Minimum commit amount should be 250e6");
+
+        //verify maximum total payment is correct
+        assertEq(seedSale.MAXIMUM_TOTAL_PAYMENT(), 5000e6, "Maximum total payment should be 5000e6");
     }
 
     function testAddToWhitelist() public {
@@ -54,8 +63,17 @@ contract KronosSeedSaleTest is Test {
         nftIDs[0] = 2;
 
         // Add an address to the whitelist
+        //this one should fail because address is already on the whitelist
+        vm.expectRevert();
         seedSale.addToWhitelist(wallets, nftIDs);
         uint256 nftId = seedSale.nftIDForAddress(whitelistedAddress);
+
+        //add a new address to the whitelist
+        wallets[0] = user1;
+        nftIDs[0] = 2;
+        seedSale.addToWhitelist(wallets, nftIDs);
+        nftId = seedSale.nftIDForAddress(user1);
+
         assertEq(nftId, 2, "Address should be on the whitelist with NFT ID 1");
     }
 
@@ -120,6 +138,26 @@ contract KronosSeedSaleTest is Test {
         vm.expectRevert();
         seedSale.payWithUSDT(minCommitAmount - 1);
         vm.stopPrank();
+    }
+
+    // test total committed amount
+    function testTotalCommittedAmount() public {
+        seedSale.flipSeedSaleActive();
+        uint256 initialContractBalance = USDT.balanceOf(address(seedSale));
+        uint256 initialTotalCommittedAmount = seedSale.totalUSDTokenAmountCommitted();
+
+        vm.startPrank(whitelistedAddress);
+        // Approve USDT transfer
+        USDT.approve(address(seedSale), minCommitAmount);
+        seedSale.payWithUSDT(minCommitAmount);
+        vm.stopPrank();
+
+        uint256 finalContractBalance = USDT.balanceOf(address(seedSale));
+        uint256 finalTotalCommittedAmount = seedSale.totalUSDTokenAmountCommitted();
+
+        assertEq(
+            finalContractBalance - initialContractBalance, minCommitAmount, "USDT should be transferred to the contract"
+        );
     }
 
     // function testPayWithUSDC() public {

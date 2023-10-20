@@ -23,9 +23,6 @@ contract KronosSeedSale is Owned, ERC721 {
     uint256 public totalSupply;
     string public baseURI;
 
-    //total amount committed by all addresses
-    uint256 public totalUSDTokenAmountCommitted;
-
     uint256 public constant MINIMUM_PAYMENT = 250e6;
     uint256 public constant MAXIMUM_TOTAL_PAYMENT = 5000e6;
     uint256 public constant NFT_ID_OFFSET = 1;
@@ -34,6 +31,7 @@ contract KronosSeedSale is Owned, ERC721 {
     // this mapping also acts as the whitelist
     mapping(address => uint256) public nftIDForAddress;
     mapping(address => uint256) public USDTokenAmountCommitted;
+    uint256 public totalUSDTokenAmountCommitted;
 
     event Payment(address from, uint256 amount, bool USDT);
 
@@ -44,7 +42,9 @@ contract KronosSeedSale is Owned, ERC721 {
 
     // use predefined NFT IDs for whitelist addition
     function addToWhitelist(address[] calldata wallets, uint256[] calldata nftIDs) external onlyOwner {
+        require(wallets.length == nftIDs.length, "Wallets and NFT IDs must be the same length");
         for (uint256 i; i < wallets.length; i++) {
+            require(nftIDForAddress[wallets[i]] == 0, "Address is already on the whitelist");
             nftIDForAddress[wallets[i]] = nftIDs[i];
         }
     }
@@ -78,7 +78,7 @@ contract KronosSeedSale is Owned, ERC721 {
         require(_ownerOf[nftIDForAddress[msg.sender] - NFT_ID_OFFSET] == address(0), "NFT is already minted");
         require(
             USDTokenAmountCommitted[msg.sender] >= MINIMUM_PAYMENT,
-            "Address must have made a minimum payment of USD $150"
+            "Address must have made a minimum payment of USD $250"
         );
         _safeMint(msg.sender, nftIDForAddress[msg.sender] - NFT_ID_OFFSET);
         totalSupply += 1;
@@ -95,7 +95,7 @@ contract KronosSeedSale is Owned, ERC721 {
     function validation(uint256 amount) internal {
         require(seedSaleActive, "Seed Sale must be active");
         require(nftIDForAddress[msg.sender] > 0, "Address must be on the whitelist");
-        require(amount >= MINIMUM_PAYMENT, "Amount must be a minimum of USD $150");
+        require(amount >= MINIMUM_PAYMENT, "Amount must be a minimum of USD $250");
         require(
             USDTokenAmountCommitted[msg.sender] + amount <= MAXIMUM_TOTAL_PAYMENT,
             "Total amount must not exceed USD $5000"
