@@ -7,11 +7,9 @@ import "solady/src/utils/LibString.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol";
 
-// multiple whitelist capability with predefined NFT ID assignment for each address
-// participate in seed sale with USDT or USDC tokens
-// keep track of committed amount for each address (useful for token contract later)
-// mint NFT with predefined ID specified in the whitelist
-
+/// @title Kronos Seed Sale Contract
+/// @notice This contract is used to participate in the Kronos Seed Sale
+/// @dev This contract is used to participate in the Kronos Seed Sale
 contract KronosSeedSale is Owned, ERC721 {
     using LibString for uint256;
 
@@ -62,34 +60,6 @@ contract KronosSeedSale is Owned, ERC721 {
         }
         totalWhitelisted += wallets.length;
     }
-
-    // /// @notice Participate in the seed sale with USDT, if whitelisted
-    // /// @param amount The amount of USDT to commit
-    // /// @dev The amount must be a minimum of USD $250
-    // /// @dev The total amount must not exceed USD $5000
-    // function payWithUSDT(uint256 amount) external {
-    //     validation(amount);
-
-    //     IERC20(USDT).transferFrom(msg.sender, address(this), amount);
-    //     USDTokenAmountCommitted[msg.sender] += amount;
-    //     totalUSDTokenAmountCommitted += amount;
-
-    //     emit Payment(msg.sender, amount, true);
-    // }
-
-    // /// @notice Participate in the seed sale with USDC, if whitelisted
-    // /// @param amount The amount of USDC to commit
-    // /// @dev The amount must be a minimum of USD $250
-    // /// @dev The total amount must not exceed USD $5000
-    // function payWithUSDC(uint256 amount) external {
-    //     validation(amount);
-
-    //     IERC20(USDC).transferFrom(msg.sender, address(this), amount);
-    //     USDTokenAmountCommitted[msg.sender] += amount;
-    //     totalUSDTokenAmountCommitted += amount;
-
-    //     emit Payment(msg.sender, amount, false);
-    // }
 
     /// @notice Participate in the seed sale with USDT or USDC, if whitelisted
     /// @param token The address of the token to commit
