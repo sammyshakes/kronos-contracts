@@ -13,13 +13,16 @@ contract DeploySeedSale is Script {
     address public usdcAddress = vm.envAddress("USDC_CONTRACT_ADDRESS");
 
     function run() external {
-        uint256 deployerPrivateKey = vm.envUint("SHAKES_DEV_DEPLOYER_PRIVATE_KEY");
+        uint256 deployerPrivateKey = vm.envUint("TESTNET_DEV_DEPLOYER_PRIVATE_KEY");
 
         //Deploy Tronic Master Contracts
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy Seed Sale Contract
         seedSaleContract = new KronosSeedSale(usdtAddress, usdcAddress);
+
+        //switch on the seed sale
+        seedSaleContract.flipSeedSaleActive();
 
         vm.stopBroadcast();
     }

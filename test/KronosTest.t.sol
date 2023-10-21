@@ -110,6 +110,41 @@ contract KronosSeedSaleTest is Test {
         console.log("Gas cost for adding", numAddresses, "addresses to the whitelist:", gasCost);
     }
 
+    function testPayWithUSDC() public {
+        seedSale.flipSeedSaleActive();
+        uint256 initialContractBalance = USDC.balanceOf(address(seedSale));
+
+        vm.startPrank(whitelistedAddress);
+        // Approve USDC transfer
+        USDC.approve(address(seedSale), minCommitAmount);
+        seedSale.payWithUSDC(minCommitAmount);
+        vm.stopPrank();
+
+        uint256 finalContractBalance = USDC.balanceOf(address(seedSale));
+        uint256 committedAmount = seedSale.USDTokenAmountCommitted(whitelistedAddress);
+
+        assertEq(
+            finalContractBalance - initialContractBalance,
+            minCommitAmount,
+            "USDC should be transferred to the contract"
+        );
+        assertEq(committedAmount, minCommitAmount, "Committed amount should be updated");
+
+        // try to pay more than the max
+        vm.startPrank(whitelistedAddress);
+        USDC.approve(address(seedSale), minCommitAmount * 100);
+        vm.expectRevert();
+        seedSale.payWithUSDC(minCommitAmount * 100);
+        vm.stopPrank();
+
+        // try to pay less than the min
+        vm.startPrank(whitelistedAddress);
+        USDC.approve(address(seedSale), minCommitAmount - 1);
+        vm.expectRevert();
+        seedSale.payWithUSDC(minCommitAmount - 1);
+        vm.stopPrank();
+    }
+
     function testPayWithUSDT() public {
         seedSale.flipSeedSaleActive();
         uint256 initialContractBalance = USDT.balanceOf(address(seedSale));

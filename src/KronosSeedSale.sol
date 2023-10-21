@@ -79,17 +79,9 @@ contract KronosSeedSale is Owned, ERC721 {
 
     /// @notice Participate in the seed sale with USDC, if whitelisted
     /// @param amount The amount of USDC to commit
-    /// @param deadline The deadline for the permit
-    /// @param v The v value of the permit signature
-    /// @param r The r value of the permit signature
-    /// @param s The s value of the permit signature
     /// @dev The amount must be a minimum of USD $250
     /// @dev The total amount must not exceed USD $5000
-    function payWithUSDC(uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
-        external
-    {
-        IERC20Permit(USDC).permit(msg.sender, address(this), amount, deadline, v, r, s);
-
+    function payWithUSDC(uint256 amount) external {
         validation(amount);
 
         IERC20(USDC).transferFrom(msg.sender, address(this), amount);
