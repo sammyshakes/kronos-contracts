@@ -63,18 +63,59 @@ contract KronosSeedSale is Owned, ERC721 {
         totalWhitelisted += wallets.length;
     }
 
+    // /// @notice Participate in the seed sale with USDT, if whitelisted
+    // /// @param amount The amount of USDT to commit
+    // /// @dev The amount must be a minimum of USD $250
+    // /// @dev The total amount must not exceed USD $5000
+    // function payWithUSDT(uint256 amount) external {
+    //     validation(amount);
+
+    //     IERC20(USDT).transferFrom(msg.sender, address(this), amount);
+    //     USDTokenAmountCommitted[msg.sender] += amount;
+    //     totalUSDTokenAmountCommitted += amount;
+
+    //     emit Payment(msg.sender, amount, true);
+    // }
+
+    // /// @notice Participate in the seed sale with USDC, if whitelisted
+    // /// @param amount The amount of USDC to commit
+    // /// @dev The amount must be a minimum of USD $250
+    // /// @dev The total amount must not exceed USD $5000
+    // function payWithUSDC(uint256 amount) external {
+    //     validation(amount);
+
+    //     IERC20(USDC).transferFrom(msg.sender, address(this), amount);
+    //     USDTokenAmountCommitted[msg.sender] += amount;
+    //     totalUSDTokenAmountCommitted += amount;
+
+    //     emit Payment(msg.sender, amount, false);
+    // }
+
+    /// @notice Participate in the seed sale with USDT or USDC, if whitelisted
+    /// @param token The address of the token to commit
+    /// @param amount The amount of tokens to commit
+    /// @dev The amount must be a minimum of USD $250
+    /// @dev The total amount must not exceed USD $5000
+    function payWithToken(address token, uint256 amount) private {
+        // Ensure that the specified token is either USDT or USDC
+        require(token == USDT || token == USDC, "Invalid token");
+
+        validation(amount);
+
+        // Transfer tokens from the sender to the contract
+        IERC20(token).transferFrom(msg.sender, address(this), amount);
+        USDTokenAmountCommitted[msg.sender] += amount;
+        totalUSDTokenAmountCommitted += amount;
+
+        emit Payment(msg.sender, amount, token == USDT);
+    }
+
     /// @notice Participate in the seed sale with USDT, if whitelisted
     /// @param amount The amount of USDT to commit
     /// @dev The amount must be a minimum of USD $250
     /// @dev The total amount must not exceed USD $5000
     function payWithUSDT(uint256 amount) external {
-        validation(amount);
-
-        IERC20(USDT).transferFrom(msg.sender, address(this), amount);
-        USDTokenAmountCommitted[msg.sender] += amount;
-        totalUSDTokenAmountCommitted += amount;
-
-        emit Payment(msg.sender, amount, true);
+        payWithToken(USDT, amount);
     }
 
     /// @notice Participate in the seed sale with USDC, if whitelisted
@@ -82,13 +123,7 @@ contract KronosSeedSale is Owned, ERC721 {
     /// @dev The amount must be a minimum of USD $250
     /// @dev The total amount must not exceed USD $5000
     function payWithUSDC(uint256 amount) external {
-        validation(amount);
-
-        IERC20(USDC).transferFrom(msg.sender, address(this), amount);
-        USDTokenAmountCommitted[msg.sender] += amount;
-        totalUSDTokenAmountCommitted += amount;
-
-        emit Payment(msg.sender, amount, false);
+        payWithToken(USDC, amount);
     }
 
     /// @notice Mint an NFT, if whitelisted
@@ -107,14 +142,25 @@ contract KronosSeedSale is Owned, ERC721 {
         totalSupply += 1;
     }
 
+    /// @notice Flip the seed sale active state
+    /// @dev Only the owner can call this function
     function flipSeedSaleActive() external onlyOwner {
         seedSaleActive = !seedSaleActive;
     }
 
+    /// @notice Set the base URI
+    /// @param newURI The new base URI
+    /// @dev Only the owner can call this function
     function setBaseURI(string calldata newURI) external onlyOwner {
         baseURI = newURI;
     }
 
+    /// @notice Validate the payment
+    /// @param amount The amount of tokens to commit
+    /// @dev The amount must be a minimum of USD $250
+    /// @dev The total amount must not exceed USD $5000
+    /// @dev The total amount must not exceed USD $250,000
+    /// @dev The address must be on the whitelist
     function validation(uint256 amount) internal view {
         require(seedSaleActive, "Seed Sale must be active");
         require(nftIDForAddress[msg.sender] > 0, "Address must be on the whitelist");
