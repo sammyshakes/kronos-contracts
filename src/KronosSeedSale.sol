@@ -51,16 +51,16 @@ contract KronosSeedSale is Owned, ERC721 {
     uint256 public constant MAXIMUM_TOTAL_PAYMENT = 5000e6;
     uint256 public constant MAXIMUM_RAISE = 300_000e6;
 
-    // Payment tokens
-    address USDT;
-    address USDC;
-
     bool public seedSaleActive;
 
-    uint256 public totalSupply;
-    string public baseURI;
+    // Payment tokens
+    address public USDT;
+    address public USDC;
 
+    string public baseURI;
+    uint256 public totalSupply;
     uint256 public totalUSDTokenAmountCommitted;
+
     mapping(address => uint256) public USDTokenAmountCommitted;
     mapping(uint256 => uint256) public tokenIdToMetadataId;
     mapping(address => uint256) public metaIDForAddress;

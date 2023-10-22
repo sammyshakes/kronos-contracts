@@ -29,7 +29,7 @@ USDC_CONTRACT_ADDRESS=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
 KRONOS_BASE_URI=
 ```
 
-## Steps
+## Installation
 
 1. Clone the repository containing the contract source code and deployment script:
 
@@ -44,43 +44,45 @@ KRONOS_BASE_URI=
    forge install
    ```
 
-3. Set the following environment variables:
+## Deployment
 
-   - `DEPLOYER_PRIVATE_KEY` - Private key of the deployer account
-   - `USDT_CONTRACT_ADDRESS` - USDT token address on Mainnet
-   - `USDC_CONTRACT_ADDRESS` - USDC token address on Mainnet
-   - `KRONOS_BASE_URI` - Base URI for Kronos NFTs
+### 3. Set the following environment variables:
 
-4. Run the deploy script:
+- `DEPLOYER_PRIVATE_KEY` - Private key of the deployer account
+- `USDT_CONTRACT_ADDRESS` - USDT token address on Mainnet
+- `USDC_CONTRACT_ADDRESS` - USDC token address on Mainnet
+- `KRONOS_BASE_URI` - Base URI for Kronos NFTs
 
-   ```bash
-   forge script script/DeploySeedSale.s.sol:DeploySeedSale -vvvv --rpc-url mainnet --broadcast --verify
-   ```
+### 4. Run the `DeploySeedSale.s.sol` script:
 
-   This will:
-
-   - Compile the contracts
-   - Deploy KronosSeedSale with USDT and USDC addresses
-   - Set the base URI for Kronos NFTs
-   - Broadcast the transaction
-   - Verify the source code on Etherscan
-
-5. The deployed contract address will be output. Visually confirm the deployment on Etherscan explorer.
-
-   - Set the contract address into the `.env` file:
-
-   ```r
-   KRONOS_CONTRACT_ADDRESS=
-   ```
-
-6. Call `flipSeedSaleActive()` on the deployed contract to activate the sale.
-
-```r
-forge script script/FlipSeedSaleActive.s.sol:FlipSeedSaleActive -vvvv --rpc-url mainnet --broadcast
+```bash
+forge script script/DeploySeedSale.s.sol:DeploySeedSale -vvvv --rpc-url mainnet --broadcast --verify
 ```
 
-7. Call `flipSeedSaleActive()` on the deployed contract to deactivate the sale.
+This will:
+
+- Compile the contracts
+- Deploy KronosSeedSale with USDT and USDC addresses
+- Set the base URI for Kronos NFTs
+- Broadcast the transaction
+- Verify the source code on Etherscan
+
+### 5. The deployed contract address will be output. Visually confirm the deployment on Etherscan explorer.
+
+- Set the contract address into the `.env` file:
 
 ```r
-forge script script/FlipSeedSaleActive.s.sol:FlipSeedSaleActive -vvvv --rpc-url mainnet --broadcast
+KRONOS_CONTRACT_ADDRESS=
 ```
+
+### 6. Call `flipSeedSaleActive()` on the deployed contract to activate the sale.
+
+    ```r
+    forge script script/FlipSeedSaleActive.s.sol:FlipSeedSaleActive -vvvv --rpc-url mainnet --broadcast
+    ```
+
+### 7. Call `flipSeedSaleActive()` on the deployed contract to deactivate the sale.
+
+    ```r
+    forge script script/FlipSeedSaleActive.s.sol:FlipSeedSaleActive -vvvv --rpc-url mainnet --broadcast
+    ```
