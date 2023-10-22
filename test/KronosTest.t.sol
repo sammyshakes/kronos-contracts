@@ -16,6 +16,7 @@ contract KronosSeedSaleTest is Test {
     address public user2;
     address public owner;
     address public whitelistedAddress;
+    address public withdrawAddress;
 
     uint256 public minCommitAmount = 250e6;
 
@@ -26,10 +27,11 @@ contract KronosSeedSaleTest is Test {
         user2 = address(0x2);
         owner = address(0x3);
         whitelistedAddress = address(0x4);
+        withdrawAddress = address(0x5);
 
         USDT = new ERC20Mock();
         USDC = new ERC20Mock();
-        seedSale = new KronosSeedSale(address(USDT), address(USDC), baseURI);
+        seedSale = new KronosSeedSale(address(USDT), address(USDC), withdrawAddress, baseURI);
 
         //mint USDT and USDC to user1 and user2
         USDT.mint(whitelistedAddress, minCommitAmount * 100);

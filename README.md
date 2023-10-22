@@ -25,6 +25,9 @@ DEPLOYER_PRIVATE_KEY=
 USDT_CONTRACT_ADDRESS=0xdAC17F958D2ee523a2206206994597C13D831ec7
 USDC_CONTRACT_ADDRESS=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
 
+# Withdrawal address for USDT and USDC
+WITHDRAWAL_ADDRESS=
+
 # Base URI for Kronos NFTs
 KRONOS_BASE_URI=
 ```
@@ -34,7 +37,7 @@ KRONOS_BASE_URI=
 1. Clone the repository containing the contract source code and deployment script:
 
    ```
-   git clone <repo_url>
+   git clone git@github.com:kr0nos-bot/kronos-contracts.git
    cd kronos-contracts
    ```
 
@@ -51,6 +54,7 @@ KRONOS_BASE_URI=
 - `DEPLOYER_PRIVATE_KEY` - Private key of the deployer account
 - `USDT_CONTRACT_ADDRESS` - USDT token address on Mainnet
 - `USDC_CONTRACT_ADDRESS` - USDC token address on Mainnet
+- `WITHDRAWAL_ADDRESS` - Address to which USDT and USDC will be transferred
 - `KRONOS_BASE_URI` - Base URI for Kronos NFTs
 
 ### 4. Run the `DeploySeedSale.s.sol` script:
@@ -63,6 +67,7 @@ This will:
 
 - Compile the contracts
 - Deploy KronosSeedSale with USDT and USDC addresses
+- Set the withdrawal address for USDT and USDC
 - Set the base URI for Kronos NFTs
 - Broadcast the transaction
 - Verify the source code on Etherscan

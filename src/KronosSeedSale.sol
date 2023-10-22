@@ -5,30 +5,7 @@ import "solmate/auth/Owned.sol";
 import "solmate/tokens/ERC721.sol";
 import "solady/src/utils/LibString.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
-/*
-      ___           ___           ___           ___           ___           ___
-     /__/|         /  /\         /  /\         /__/\         /  /\         /  /\
-    |  |:|        /  /::\       /  /::\        \  \:\       /  /::\       /  /:/_
-    |  |:|       /  /:/\:\     /  /:/\:\        \  \:\     /  /:/\:\     /  /:/ /\
-  __|  |:|      /  /:/~/:/    /  /:/  \:\   _____\__\:\   /  /:/  \:\   /  /:/ /::\
- /__/\_|:|____ /__/:/ /:/___ /__/:/ \__\:\ /__/::::::::\ /__/:/ \__\:\ /__/:/ /:/\:\
- \  \:\/:::::/ \  \:\/:::::/ \  \:\ /  /:/ \  \:\~~\~~\/ \  \:\ /  /:/ \  \:\/:/~/:/
-  \  \::/~~~~   \  \::/~~~~   \  \:\  /:/   \  \:\  ~~~   \  \:\  /:/   \  \::/ /:/
-   \  \:\        \  \:\        \  \:\/:/     \  \:\        \  \:\/:/     \__\/ /:/
-    \  \:\        \  \:\        \  \::/       \  \:\        \  \::/        /__/:/
-     \__\/         \__\/         \__\/         \__\/         \__\/         \__\/
 
-__/\\\________/\\\____/\\\\\\\\\___________/\\\\\_______/\\\\\_____/\\\_______/\\\\\__________/\\\\\\\\\\\___        
- _\/\\\_____/\\\//___/\\\///////\\\_______/\\\///\\\____\/\\\\\\___\/\\\_____/\\\///\\\______/\\\/////////\\\_       
-  _\/\\\__/\\\//_____\/\\\_____\/\\\_____/\\\/__\///\\\__\/\\\/\\\__\/\\\___/\\\/__\///\\\___\//\\\______\///__      
-   _\/\\\\\\//\\\_____\/\\\\\\\\\\\/_____/\\\______\//\\\_\/\\\//\\\_\/\\\__/\\\______\//\\\___\////\\\_________     
-    _\/\\\//_\//\\\____\/\\\//////\\\____\/\\\_______\/\\\_\/\\\\//\\\\/\\\_\/\\\_______\/\\\______\////\\\______    
-     _\/\\\____\//\\\___\/\\\____\//\\\___\//\\\______/\\\__\/\\\_\//\\\/\\\_\//\\\______/\\\__________\////\\\___   
-      _\/\\\_____\//\\\__\/\\\_____\//\\\___\///\\\__/\\\____\/\\\__\//\\\\\\__\///\\\__/\\\_____/\\\______\//\\\__  
-       _\/\\\______\//\\\_\/\\\______\//\\\____\///\\\\\/_____\/\\\___\//\\\\\____\///\\\\\/_____\///\\\\\\\\\\\/___ 
-        _\///________\///__\///________\///_______\/////_______\///_____\/////_______\/////_________\///////////_____
-
-*/
 /// @title Kronos Seed Sale Contract
 /// @notice This contract is used to participate in the Kronos Seed Sale
 /// @dev This contract is used to participate in the Kronos Seed Sale
@@ -39,13 +16,15 @@ contract KronosSeedSale is Owned, ERC721 {
     // Constants
     uint256 public constant MINIMUM_PAYMENT = 250e6;
     uint256 public constant MAXIMUM_TOTAL_PAYMENT = 5000e6;
-    uint256 public constant MAXIMUM_RAISE = 300_000e6;
+    uint256 public constant MAXIMUM_RAISE = 250_000e6;
 
     bool public seedSaleActive;
 
     // Payment tokens
     address public USDT;
     address public USDC;
+
+    address public immutable withdrawAddress;
 
     string public baseURI;
     uint256 public totalSupply;
@@ -61,12 +40,13 @@ contract KronosSeedSale is Owned, ERC721 {
     /// @param _USDT The address of the USDT contract
     /// @param _USDC The address of the USDC contract
     /// @param _baseURI The base URI for the token metadata
-    constructor(address _USDT, address _USDC, string memory _baseURI)
+    constructor(address _USDT, address _USDC, address _withdraw, string memory _baseURI)
         ERC721("Kronos Offical Seed Sale NFT", "TITAN")
         Owned(msg.sender)
     {
         USDT = _USDT;
         USDC = _USDC;
+        withdrawAddress = _withdraw;
         baseURI = _baseURI;
     }
 
@@ -128,7 +108,7 @@ contract KronosSeedSale is Owned, ERC721 {
         );
         require(
             totalUSDTokenAmountCommitted <= MAXIMUM_RAISE,
-            "Total raise must not exceed USD $300,000"
+            "Total raise must not exceed USD $250,000"
         );
 
         // Transfer tokens from the sender to the contract
@@ -183,7 +163,8 @@ contract KronosSeedSale is Owned, ERC721 {
     /// @notice Withdraw tokens from the contract
     /// @param token The address of the token to withdraw
     /// @dev Only the owner can call this function
-    function withdrawTokens(address token) external onlyOwner {
+    function withdrawTokens(address token) external {
+        require(msg.sender == withdrawAddress, "Only the withdraw address can call this function");
         IERC20(token).transfer(msg.sender, IERC20(token).balanceOf(address(this)));
     }
 }
