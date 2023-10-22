@@ -28,16 +28,6 @@ __/\\\________/\\\____/\\\\\\\\\___________/\\\\\_______/\\\\\_____/\\\_______/\
        _\/\\\______\//\\\_\/\\\______\//\\\____\///\\\\\/_____\/\\\___\//\\\\\____\///\\\\\/_____\///\\\\\\\\\\\/___ 
         _\///________\///__\///________\///_______\/////_______\///_____\/////_______\/////_________\///////////_____
 
-
-                               __/\\\\\\\\\\\\\__________/\\\\\________/\\\\\\\\\\\\\\\_
-                                _\/\\\/////////\\\______/\\\///\\\_____\///////\\\/////__
-                                 _\/\\\_______\/\\\____/\\\/__\///\\\_________\/\\\_______
-                                  _\/\\\\\\\\\\\\\\____/\\\______\//\\\________\/\\\_______
-                                   _\/\\\/////////\\\__\/\\\_______\/\\\________\/\\\_______
-                                    _\/\\\_______\/\\\__\//\\\______/\\\_________\/\\\_______
-                                     _\/\\\_______\/\\\___\///\\\__/\\\___________\/\\\_______
-                                      _\/\\\\\\\\\\\\\/______\///\\\\\/____________\/\\\_______
-                                       _\/////////////__________\/////______________\///________
 */
 /// @title Kronos Seed Sale Contract
 /// @notice This contract is used to participate in the Kronos Seed Sale
@@ -86,10 +76,10 @@ contract KronosSeedSale is Owned, ERC721 {
         seedSaleActive = !seedSaleActive;
     }
 
-    /// @notice Add an address to the whitelist
+    /// @notice Add addresses to the whitelist
     /// @param wallets The addresses to add to the whitelist
-    /// @param metadataId The metadata id to assign to the address
-    /// @dev The metadata id is the id of the metadata json file that will be used for the token id
+    /// @param metadataId The metadata id to assign to these address
+    /// @dev The metadata id is the id of the metadata json file that will be used for the token uri
     function addToWhitelist(address[] calldata wallets, uint256 metadataId) external onlyOwner {
         for (uint256 i; i < wallets.length; i++) {
             require(metaIDForAddress[wallets[i]] == 0, "Address is already on the whitelist");
