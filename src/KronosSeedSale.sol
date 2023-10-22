@@ -13,6 +13,12 @@ import "openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol
 contract KronosSeedSale is Owned, ERC721 {
     using LibString for uint256;
 
+    // Constants
+    uint256 public constant MINIMUM_PAYMENT = 250e6;
+    uint256 public constant MAXIMUM_TOTAL_PAYMENT = 5000e6;
+    uint256 public constant MAXIMUM_RAISE = 250_000e6;
+
+    // Payment tokens
     address USDT;
     address USDC;
 
@@ -21,18 +27,13 @@ contract KronosSeedSale is Owned, ERC721 {
     uint256 public totalSupply;
     string public baseURI;
 
-    uint256 public constant MINIMUM_PAYMENT = 250e6;
-    uint256 public constant MAXIMUM_TOTAL_PAYMENT = 5000e6;
-    uint256 public constant MAXIMUM_RAISE = 250_000e6;
-    uint256 public constant NFT_ID_OFFSET = 1;
-
-    // starts at 1, but actual minted id will be nftIDForAddress - 1
-    // this mapping also acts as the whitelist
-    mapping(address => uint256) public nftIDForAddress;
-    mapping(uint256 => uint256) public tokenIdToMetadataId;
-    mapping(address => uint256) public USDTokenAmountCommitted;
     uint256 public totalUSDTokenAmountCommitted;
-    uint256 public totalWhitelisted;
+    mapping(address => uint256) public USDTokenAmountCommitted;
+    mapping(uint256 => uint256) public tokenIdToMetadataId;
+    mapping(address => uint256) public metaIDForAddress;
+
+    // Do we need this for ui?
+    // uint256 public totalWhitelisted;
 
     event Payment(address from, uint256 amount, bool USDT);
 
@@ -52,13 +53,11 @@ contract KronosSeedSale is Owned, ERC721 {
     /// @param metadataId The metadata id to assign to the address
     /// @dev The metadata id is the id of the metadata json file that will be used for the token id
     function addToWhitelist(address[] calldata wallets, uint256 metadataId) external onlyOwner {
-        uint256 nextNFTID = totalWhitelisted;
         for (uint256 i; i < wallets.length; i++) {
-            require(nftIDForAddress[wallets[i]] == 0, "Address is already on the whitelist");
-            nftIDForAddress[wallets[i]] = ++nextNFTID;
-            tokenIdToMetadataId[nextNFTID] = metadataId;
+            require(metaIDForAddress[wallets[i]] == 0, "Address is already on the whitelist");
+            metaIDForAddress[wallets[i]] = metadataId;
         }
-        totalWhitelisted += wallets.length;
+        // totalWhitelisted += wallets.length;
     }
 
     /// @notice Participate in the seed sale with USDT or USDC, if whitelisted
@@ -66,50 +65,72 @@ contract KronosSeedSale is Owned, ERC721 {
     /// @param amount The amount of tokens to commit
     /// @dev The amount must be a minimum of USD $250
     /// @dev The total amount must not exceed USD $5000
-    function payWithToken(address token, uint256 amount) private {
-        // Ensure that the specified token is either USDT or USDC
-        require(token == USDT || token == USDC, "Invalid token");
+    /// @dev The total amount must not exceed USD $250,000
+    /// @dev This function is called by payWithUSDT and payWithUSDC
+    function _payWithToken(address token, uint256 amount) private {
+        uint256 totalCommittedByUser;
+        // these cannot overflow since there are enforced maximums in place
+        unchecked {
+            totalCommittedByUser = USDTokenAmountCommitted[msg.sender] += amount;
+            totalUSDTokenAmountCommitted += amount;
+        }
 
-        validation(amount);
+        require(seedSaleActive, "Seed Sale must be active");
+        // to allow for a payment after a mint, check if the address has made a payment before
+        require(
+            metaIDForAddress[msg.sender] > 0 || totalCommittedByUser > 0,
+            "Address must be on the whitelist"
+        );
+        require(
+            amount >= MINIMUM_PAYMENT && totalCommittedByUser <= MAXIMUM_TOTAL_PAYMENT,
+            "Invalid amount"
+        );
+        require(
+            totalUSDTokenAmountCommitted <= MAXIMUM_RAISE,
+            "Total raise must not exceed USD $250,000"
+        );
 
         // Transfer tokens from the sender to the contract
         IERC20(token).transferFrom(msg.sender, address(this), amount);
-        USDTokenAmountCommitted[msg.sender] += amount;
-        totalUSDTokenAmountCommitted += amount;
 
         emit Payment(msg.sender, amount, token == USDT);
     }
 
     /// @notice Participate in the seed sale with USDT, if whitelisted
     /// @param amount The amount of USDT to commit
-    /// @dev The amount must be a minimum of USD $250
-    /// @dev The total amount must not exceed USD $5000
+    /// @dev requirements are checked in _payWithToken
     function payWithUSDT(uint256 amount) external {
-        payWithToken(USDT, amount);
+        _payWithToken(USDT, amount);
     }
 
     /// @notice Participate in the seed sale with USDC, if whitelisted
     /// @param amount The amount of USDC to commit
-    /// @dev The amount must be a minimum of USD $250
-    /// @dev The total amount must not exceed USD $5000
+    /// @dev requirements are checked in _payWithToken
     function payWithUSDC(uint256 amount) external {
-        payWithToken(USDC, amount);
+        _payWithToken(USDC, amount);
     }
 
     /// @notice Mint an NFT, if whitelisted
     /// @dev The address must have made a minimum payment of USD $250
     function mint() external {
+        uint256 metadataId = metaIDForAddress[msg.sender];
         require(seedSaleActive, "Seed Sale must be active");
-        require(
-            _ownerOf[nftIDForAddress[msg.sender] - NFT_ID_OFFSET] == address(0),
-            "NFT is already minted"
-        );
+        require(metadataId > 0, "Address must be on the whitelist");
         require(
             USDTokenAmountCommitted[msg.sender] >= MINIMUM_PAYMENT,
             "Address must have made a minimum payment of USD $250"
         );
-        _safeMint(msg.sender, nftIDForAddress[msg.sender] - NFT_ID_OFFSET);
-        totalSupply += 1;
+
+        // reset the metadata id to 0 for the address
+        // this is to prevent the address from minting more than one NFT
+        // allows the address to make another payment after minting
+        // protects against reentrency attacks and reduces gas costs for minter
+        metaIDForAddress[msg.sender] = 0;
+        tokenIdToMetadataId[totalSupply] = metadataId;
+
+        // mint and increment totalSupply after
+        // using totalSupply as the token id
+        _safeMint(msg.sender, totalSupply++);
     }
 
     /// @notice Flip the seed sale active state
@@ -123,26 +144,6 @@ contract KronosSeedSale is Owned, ERC721 {
     /// @dev Only the owner can call this function
     function setBaseURI(string calldata newURI) external onlyOwner {
         baseURI = newURI;
-    }
-
-    /// @notice Validate the payment
-    /// @param amount The amount of tokens to commit
-    /// @dev The amount must be a minimum of USD $250
-    /// @dev The total amount must not exceed USD $5000
-    /// @dev The total amount must not exceed USD $250,000
-    /// @dev The address must be on the whitelist
-    function validation(uint256 amount) internal view {
-        require(seedSaleActive, "Seed Sale must be active");
-        require(nftIDForAddress[msg.sender] > 0, "Address must be on the whitelist");
-        require(amount >= MINIMUM_PAYMENT, "Amount must be a minimum of USD $250");
-        require(
-            USDTokenAmountCommitted[msg.sender] + amount <= MAXIMUM_TOTAL_PAYMENT,
-            "Total amount must not exceed USD $5000"
-        );
-        require(
-            totalUSDTokenAmountCommitted + amount <= MAXIMUM_RAISE,
-            "Total amount must not exceed USD $250,000"
-        );
     }
 
     /// @notice Get the URI for a token

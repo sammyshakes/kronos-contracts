@@ -57,24 +57,19 @@ contract KronosSeedSaleTest is Test {
 
     function testAddToWhitelist() public {
         address[] memory wallets = new address[](1);
-        uint128[] memory nftIDs = new uint128[](1);
 
         wallets[0] = whitelistedAddress;
-        nftIDs[0] = 2;
 
         // Add an address to the whitelist
         //this one should fail because address is already on the whitelist
         vm.expectRevert();
-        seedSale.addToWhitelist(wallets, nftIDs[0]);
-        uint256 nftId = seedSale.nftIDForAddress(whitelistedAddress);
+        seedSale.addToWhitelist(wallets, 2);
 
         //add a new address to the whitelist
         wallets[0] = user1;
-        nftIDs[0] = 2;
-        seedSale.addToWhitelist(wallets, nftIDs[0]);
-        nftId = seedSale.nftIDForAddress(user1);
+        seedSale.addToWhitelist(wallets, 2);
 
-        assertEq(nftId, 2, "Address should be on the whitelist with NFT ID 1");
+        // assertEq(nftId, 2, "Address should be on the whitelist with NFT ID 1");
     }
 
     function generateAddress(uint256 index) internal pure returns (address) {
@@ -84,30 +79,116 @@ contract KronosSeedSaleTest is Test {
     function testAddMultipleToWhitelist() public {
         uint256 numAddresses = 150;
         address[] memory wallets = new address[](numAddresses);
-        uint128[] memory nftIDs = new uint128[](numAddresses);
 
         // Generate addresses and NFT IDs to add to the whitelist
         for (uint128 i = 0; i < numAddresses; i++) {
             wallets[i] = generateAddress(i); // Generate a unique address for each
-            nftIDs[i] = i + 1; // Use unique NFT IDs for each
         }
 
         // Measure gas cost for adding multiple addresses to the whitelist
+        uint256 metadataId = 2;
         uint256 gasCost = gasleft();
-        seedSale.addToWhitelist(wallets, 2);
+        seedSale.addToWhitelist(wallets, metadataId);
+
+        // Verify that all addresses have been added to the whitelist correctly
+        for (uint256 i = 0; i < numAddresses; i++) {
+            assertEq(
+                seedSale.metaIDForAddress(wallets[i]),
+                metadataId,
+                "Address should be on the whitelist with the correct metadata ID"
+            );
+        }
+
+        // Generate 2nd round
+        for (uint128 i = 0; i < numAddresses; i++) {
+            wallets[i] = generateAddress(numAddresses + i);
+        }
+
+        metadataId = 3;
+        seedSale.addToWhitelist(wallets, metadataId);
+
         gasCost = gasCost - gasleft();
 
         // Verify that all addresses have been added to the whitelist correctly
         for (uint256 i = 0; i < numAddresses; i++) {
-            uint256 nftId = seedSale.nftIDForAddress(wallets[i]);
-            // assertEq(nftId, nftIDs[i], "Address should be on the whitelist with the correct NFT ID");
-            // get metadata id from token id
-            uint256 metadataId = seedSale.tokenIdToMetadataId(nftId + 1);
-            // console.log("Token URI:", seedSale.tokenURI(nftId + 1));
+            assertEq(
+                seedSale.metaIDForAddress(wallets[i]),
+                metadataId,
+                "Address should be on the whitelist with the correct metadata ID"
+            );
         }
 
         // Print the gas cost
-        console.log("Gas cost for adding", numAddresses, "addresses to the whitelist:", gasCost);
+        console.log("Gas cost for adding", numAddresses * 2, "addresses to the whitelist:", gasCost);
+    }
+
+    // test limits on the amounts that can be committed
+    function testCommitLimits() public {
+        seedSale.flipSeedSaleActive();
+        vm.startPrank(whitelistedAddress);
+        USDT.approve(address(seedSale), minCommitAmount);
+        seedSale.payWithUSDT(minCommitAmount);
+        vm.stopPrank();
+
+        uint256 raisedAmount = seedSale.totalUSDTokenAmountCommitted();
+        assertEq(raisedAmount, minCommitAmount, "Raised amount should be 250e6");
+
+        //try to raise more than the limit
+        vm.startPrank(whitelistedAddress);
+        USDT.approve(address(seedSale), 1);
+        vm.expectRevert();
+        seedSale.payWithUSDT(1);
+        vm.stopPrank();
+
+        //try to raise less than the limit
+        vm.startPrank(whitelistedAddress);
+        USDT.approve(address(seedSale), minCommitAmount - 1);
+        vm.expectRevert();
+        seedSale.payWithUSDT(minCommitAmount - 1);
+        vm.stopPrank();
+    }
+
+    // test that more than 250_000e6 cannot be raised
+    // we must setup test to raise 250_000e6 first
+    // in increments of 5000e6
+    function testRaiseLimit() public {
+        // create 50 transactions of 5000e6 each
+        // with 50 unique addresses, first they must be added to the whitelist
+        uint256 numAddresses = 50;
+        address[] memory wallets = new address[](numAddresses);
+
+        // Generate addresses to add to the whitelist
+        for (uint128 i = 0; i < numAddresses; i++) {
+            wallets[i] = generateAddress(i); // Generate a unique address for each
+        }
+
+        // set seed sale to active
+        seedSale.flipSeedSaleActive();
+
+        // Add addresses to the whitelist
+        uint256 metadataId = 2;
+        seedSale.addToWhitelist(wallets, metadataId);
+
+        // now these addresses can participate in the seed sale
+        // create 50 transactions of 5000e6 each, first we must mint usdt to these addresses
+        for (uint128 i = 0; i < numAddresses; i++) {
+            USDT.mint(wallets[i], 5000e6);
+            vm.startPrank(wallets[i]);
+            USDT.approve(address(seedSale), 5000e6);
+            seedSale.payWithUSDT(5000e6);
+            vm.stopPrank();
+        }
+
+        //verify that the total raised amount is 250_000e6
+        uint256 raisedAmount = seedSale.totalUSDTokenAmountCommitted();
+        assertEq(raisedAmount, 250_000e6, "Raised amount should be 250_000e6");
+
+        //try to raise more than the limit
+        vm.startPrank(whitelistedAddress);
+        USDT.approve(address(seedSale), 1);
+        vm.expectRevert();
+        seedSale.payWithUSDT(1);
+        vm.stopPrank();
     }
 
     function testPayWithUSDC() public {
@@ -195,33 +276,19 @@ contract KronosSeedSaleTest is Test {
         uint256 finalContractBalance = USDT.balanceOf(address(seedSale));
         uint256 finalTotalCommittedAmount = seedSale.totalUSDTokenAmountCommitted();
 
+        //verify that the total committed amount is updated
+        assertEq(
+            finalTotalCommittedAmount - initialTotalCommittedAmount,
+            minCommitAmount,
+            "Total committed amount should be updated"
+        );
+
         assertEq(
             finalContractBalance - initialContractBalance,
             minCommitAmount,
             "USDT should be transferred to the contract"
         );
     }
-
-    // function testPayWithUSDC() public {
-    //     seedSale.flipSeedSaleActive();
-    //     uint256 initialBalance = USDC.balanceOf(address(seedSale));
-
-    //     vm.startPrank(whitelistedAddress);
-    //     // Approve USDC transfer
-    //     uint256 deadline = block.timestamp + 3600; // Set a reasonable deadline
-    //     bytes32 r;
-    //     bytes32 s;
-    //     uint8 v;
-    //     IERC20Permit(address(USDC)).permit(whitelistedAddress, address(seedSale), 100, deadline, v, r, s);
-    //     seedSale.payWithUSDC(100, deadline, v, r, s);
-    //     vm.stopPrank();
-
-    //     uint256 finalBalance = USDC.balanceOf(address(seedSale));
-    //     uint256 committedAmount = seedSale.USDTokenAmountCommitted(whitelistedAddress);
-
-    //     assertEq(finalBalance - initialBalance, 100, "USDC should be transferred to the contract");
-    //     assertEq(committedAmount, 100, "Committed amount should be updated");
-    // }
 
     function testMint() public {
         seedSale.flipSeedSaleActive();
@@ -233,6 +300,10 @@ contract KronosSeedSaleTest is Test {
 
         uint256 balance = seedSale.balanceOf(whitelistedAddress);
         assertEq(balance, 1, "NFT should be minted for the whitelisted address");
+
+        //verify that the address is no longer on the whitelist
+        uint256 metadataId = seedSale.metaIDForAddress(whitelistedAddress);
+        assertEq(metadataId, 0, "Address should no longer be on the whitelist");
 
         //attempt to mint again
         vm.startPrank(whitelistedAddress);
@@ -259,12 +330,12 @@ contract KronosSeedSaleTest is Test {
 
         string memory tokenURI = seedSale.tokenURI(0);
         console.log("Token URI:", tokenURI);
-        assertEq(tokenURI, "http://base-uri.com/0", "Token URI should be constructed correctly");
+        assertEq(tokenURI, "http://base-uri.com/1", "Token URI should be constructed correctly");
 
         //set new baseURI
         seedSale.setBaseURI("http://new-base-uri.com/");
         tokenURI = seedSale.tokenURI(0);
         console.log("Token URI:", tokenURI);
-        assertEq(tokenURI, "http://new-base-uri.com/0", "Token URI should be constructed correctly");
+        assertEq(tokenURI, "http://new-base-uri.com/1", "Token URI should be constructed correctly");
     }
 }
