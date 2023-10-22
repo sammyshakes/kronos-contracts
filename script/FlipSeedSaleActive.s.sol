@@ -6,7 +6,7 @@ import "forge-std/Script.sol";
 import "../src/KronosSeedSale.sol";
 
 contract FlipSeedSaleActive is Script {
-    uint256 deployerPrivateKey = vm.envUint("SHAKES_DEV_DEPLOYER_PRIVATE_KEY");
+    uint256 deployerPrivateKey = vm.envUint("TESTNET_DEV_DEPLOYER_PRIVATE_KEY");
 
     address public seedSaleContractAddress = vm.envAddress("KRONOS_CONTRACT_ADDRESS");
 

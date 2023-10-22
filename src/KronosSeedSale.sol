@@ -87,19 +87,22 @@ contract KronosSeedSale is Owned, ERC721 {
     /// @dev The total amount must not exceed USD $250,000
     /// @dev This function is called by payWithUSDT and payWithUSDC
     function _payWithToken(address token, uint256 amount) private {
-        uint256 totalCommittedByUser;
-        // these cannot overflow since there are enforced maximums in place
-        unchecked {
-            totalCommittedByUser = USDTokenAmountCommitted[msg.sender] += amount;
-            totalUSDTokenAmountCommitted += amount;
-        }
-
         require(seedSaleActive, "Seed Sale must be active");
+
+        uint256 totalCommittedByUser = USDTokenAmountCommitted[msg.sender];
+
         // to allow for a payment after a mint, check if the address has made a payment before
         require(
             metaIDForAddress[msg.sender] > 0 || totalCommittedByUser > 0,
             "Address must be on the whitelist"
         );
+
+        unchecked {
+            // these cannot overflow since there are enforced maximums in place
+            totalCommittedByUser = USDTokenAmountCommitted[msg.sender] += amount;
+            totalUSDTokenAmountCommitted += amount;
+        }
+
         require(
             amount >= MINIMUM_PAYMENT && totalCommittedByUser <= MAXIMUM_TOTAL_PAYMENT
                 && totalUSDTokenAmountCommitted <= MAXIMUM_RAISE,

@@ -12,10 +12,10 @@ contract DeploySeedSale is Script {
     address public usdtAddress = vm.envAddress("USDT_CONTRACT_ADDRESS");
     address public usdcAddress = vm.envAddress("USDC_CONTRACT_ADDRESS");
     address public withdrawAddress = vm.envAddress("WITHDRAW_ADDRESS");
-    string public baseURI = vm.envString("KRONOS_SEED_SALE_BASE_URI");
+    string public baseURI = vm.envString("KRONOS_BASE_URI");
 
     function run() external {
-        uint256 deployerPrivateKey = vm.envUint("TESTNET_DEV_DEPLOYER_PRIVATE_KEY");
+        uint256 deployerPrivateKey = uint256(vm.envBytes32("TESTNET_DEV_DEPLOYER_ADDRESS"));
 
         //Deploy Tronic Master Contracts
         vm.startBroadcast(deployerPrivateKey);
