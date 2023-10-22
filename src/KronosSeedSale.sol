@@ -7,6 +7,18 @@ import "solady/src/utils/LibString.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol";
 
+//       ___           ___           ___           ___           ___           ___
+//      /__/|         /  /\         /  /\         /__/\         /  /\         /  /\
+//     |  |:|        /  /::\       /  /::\        \  \:\       /  /::\       /  /:/_
+//     |  |:|       /  /:/\:\     /  /:/\:\        \  \:\     /  /:/\:\     /  /:/ /\
+//   __|  |:|      /  /:/~/:/    /  /:/  \:\   _____\__\:\   /  /:/  \:\   /  /:/ /::\
+//  /__/\_|:|____ /__/:/ /:/___ /__/:/ \__\:\ /__/::::::::\ /__/:/ \__\:\ /__/:/ /:/\:\
+//  \  \:\/:::::/ \  \:\/:::::/ \  \:\ /  /:/ \  \:\~~\~~\/ \  \:\ /  /:/ \  \:\/:/~/:/
+//   \  \::/~~~~   \  \::/~~~~   \  \:\  /:/   \  \:\  ~~~   \  \:\  /:/   \  \::/ /:/
+//    \  \:\        \  \:\        \  \:\/:/     \  \:\        \  \:\/:/     \__\/ /:/
+//     \  \:\        \  \:\        \  \::/       \  \:\        \  \::/        /__/:/
+//      \__\/         \__\/         \__\/         \__\/         \__\/         \__\/
+
 /// @title Kronos Seed Sale Contract
 /// @notice This contract is used to participate in the Kronos Seed Sale
 /// @dev This contract is used to participate in the Kronos Seed Sale
