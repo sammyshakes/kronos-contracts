@@ -8,8 +8,6 @@ import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 /// @title Kronos Seed Sale Contract
 /// @notice This contract is used to participate in the Kronos Seed Sale
-/// @dev This contract is used to participate in the Kronos Seed Sale
-
 contract KronosSeedSale is Owned, ERC721 {
     using LibString for uint256;
 
@@ -103,12 +101,9 @@ contract KronosSeedSale is Owned, ERC721 {
             "Address must be on the whitelist"
         );
         require(
-            amount >= MINIMUM_PAYMENT && totalCommittedByUser <= MAXIMUM_TOTAL_PAYMENT,
+            amount >= MINIMUM_PAYMENT && totalCommittedByUser <= MAXIMUM_TOTAL_PAYMENT
+                && totalUSDTokenAmountCommitted <= MAXIMUM_RAISE,
             "Invalid amount"
-        );
-        require(
-            totalUSDTokenAmountCommitted <= MAXIMUM_RAISE,
-            "Total raise must not exceed USD $250,000"
         );
 
         // Transfer tokens from the sender to the contract

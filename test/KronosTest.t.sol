@@ -19,6 +19,7 @@ contract KronosSeedSaleTest is Test {
     address public withdrawAddress;
 
     uint256 public minCommitAmount = 250e6;
+    uint256 public maxCommitAmount = 5000e6;
 
     string public baseURI = "http://base-uri.com/";
 
@@ -41,13 +42,11 @@ contract KronosSeedSaleTest is Test {
         // seedSale.setBaseURI("http://base-uri.com/");
 
         address[] memory wallets = new address[](1);
-        uint128[] memory nftIDs = new uint128[](1);
 
         wallets[0] = whitelistedAddress;
-        nftIDs[0] = 1;
 
         // Add an address to the whitelist
-        seedSale.addToWhitelist(wallets, nftIDs[0]);
+        seedSale.addToWhitelist(wallets, 1);
 
         //verify seed sale is not active
         assertEq(seedSale.seedSaleActive(), false, "Seed sale should not be active");
@@ -72,8 +71,6 @@ contract KronosSeedSaleTest is Test {
         //add a new address to the whitelist
         wallets[0] = user1;
         seedSale.addToWhitelist(wallets, 2);
-
-        // assertEq(nftId, 2, "Address should be on the whitelist with NFT ID 1");
     }
 
     function generateAddress(uint256 index) internal pure returns (address) {
@@ -134,17 +131,18 @@ contract KronosSeedSaleTest is Test {
         seedSale.payWithUSDT(minCommitAmount);
         vm.stopPrank();
 
-        uint256 raisedAmount = seedSale.totalUSDTokenAmountCommitted();
-        assertEq(raisedAmount, minCommitAmount, "Raised amount should be 250e6");
+        //get totalcommitted by the whitelisted address
+        uint256 committedAmount = seedSale.USDTokenAmountCommitted(whitelistedAddress);
+        assertEq(committedAmount, minCommitAmount, "Committed amount should be updated");
 
-        //try to raise more than the limit
+        //try to pay more than the max limit of 5000e6
         vm.startPrank(whitelistedAddress);
         USDT.approve(address(seedSale), 1);
         vm.expectRevert();
-        seedSale.payWithUSDT(1);
+        seedSale.payWithUSDT(maxCommitAmount + 1);
         vm.stopPrank();
 
-        //try to raise less than the limit
+        //try to pay less than the limit of 250e6
         vm.startPrank(whitelistedAddress);
         USDT.approve(address(seedSale), minCommitAmount - 1);
         vm.expectRevert();
@@ -345,5 +343,38 @@ contract KronosSeedSaleTest is Test {
         tokenURI = seedSale.tokenURI(0);
         console.log("Token URI:", tokenURI);
         assertEq(tokenURI, "http://new-base-uri.com/1", "Token URI should be constructed correctly");
+    }
+
+    //test withdraw function
+    function testWithdraw() public {
+        seedSale.flipSeedSaleActive();
+        vm.startPrank(whitelistedAddress);
+        USDT.approve(address(seedSale), minCommitAmount);
+        seedSale.payWithUSDT(minCommitAmount);
+        seedSale.mint();
+        vm.stopPrank();
+
+        //get the balance of the withdraw address
+        uint256 initialBalance = USDT.balanceOf(withdrawAddress);
+
+        //try to withdraw from non authorized address
+        vm.startPrank(user1);
+        vm.expectRevert();
+        seedSale.withdrawTokens(address(USDT));
+        vm.stopPrank();
+
+        //withdraw
+        vm.prank(withdrawAddress);
+        seedSale.withdrawTokens(address(USDT));
+
+        //get the balance of the withdraw address
+        uint256 finalBalance = USDT.balanceOf(withdrawAddress);
+
+        //verify that the withdraw address received the funds
+        assertEq(
+            finalBalance - initialBalance,
+            minCommitAmount,
+            "Withdraw address should receive the funds"
+        );
     }
 }
