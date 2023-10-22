@@ -301,6 +301,10 @@ contract KronosSeedSaleTest is Test {
         uint256 balance = seedSale.balanceOf(whitelistedAddress);
         assertEq(balance, 1, "NFT should be minted for the whitelisted address");
 
+        //check the owner of the NFT
+        address owner = seedSale.ownerOf(0);
+        assertEq(owner, whitelistedAddress, "Owner of the NFT should be the whitelisted address");
+
         //verify that the address is no longer on the whitelist
         uint256 metadataId = seedSale.metaIDForAddress(whitelistedAddress);
         assertEq(metadataId, 0, "Address should no longer be on the whitelist");

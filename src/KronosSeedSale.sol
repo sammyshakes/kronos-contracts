@@ -5,7 +5,6 @@ import "solmate/auth/Owned.sol";
 import "solmate/tokens/ERC721.sol";
 import "solady/src/utils/LibString.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
-import "openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol";
 
 //       ___           ___           ___           ___           ___           ___
 //      /__/|         /  /\         /  /\         /__/\         /  /\         /  /\
