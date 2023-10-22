@@ -32,9 +32,6 @@ contract KronosSeedSale is Owned, ERC721 {
     mapping(uint256 => uint256) public tokenIdToMetadataId;
     mapping(address => uint256) public metaIDForAddress;
 
-    // Do we need this for ui?
-    // uint256 public totalWhitelisted;
-
     event Payment(address from, uint256 amount, bool USDT);
 
     /// @notice Constructor
@@ -48,6 +45,12 @@ contract KronosSeedSale is Owned, ERC721 {
         USDC = _USDC;
     }
 
+    /// @notice Flip the seed sale active state
+    /// @dev Only the owner can call this function
+    function flipSeedSaleActive() external onlyOwner {
+        seedSaleActive = !seedSaleActive;
+    }
+
     /// @notice Add an address to the whitelist
     /// @param wallets The addresses to add to the whitelist
     /// @param metadataId The metadata id to assign to the address
@@ -57,7 +60,20 @@ contract KronosSeedSale is Owned, ERC721 {
             require(metaIDForAddress[wallets[i]] == 0, "Address is already on the whitelist");
             metaIDForAddress[wallets[i]] = metadataId;
         }
-        // totalWhitelisted += wallets.length;
+    }
+
+    /// @notice Participate in the seed sale with USDT, if whitelisted
+    /// @param amount The amount of USDT to commit
+    /// @dev requirements are checked in _payWithToken
+    function payWithUSDT(uint256 amount) external {
+        _payWithToken(USDT, amount);
+    }
+
+    /// @notice Participate in the seed sale with USDC, if whitelisted
+    /// @param amount The amount of USDC to commit
+    /// @dev requirements are checked in _payWithToken
+    function payWithUSDC(uint256 amount) external {
+        _payWithToken(USDC, amount);
     }
 
     /// @notice Participate in the seed sale with USDT or USDC, if whitelisted
@@ -96,20 +112,6 @@ contract KronosSeedSale is Owned, ERC721 {
         emit Payment(msg.sender, amount, token == USDT);
     }
 
-    /// @notice Participate in the seed sale with USDT, if whitelisted
-    /// @param amount The amount of USDT to commit
-    /// @dev requirements are checked in _payWithToken
-    function payWithUSDT(uint256 amount) external {
-        _payWithToken(USDT, amount);
-    }
-
-    /// @notice Participate in the seed sale with USDC, if whitelisted
-    /// @param amount The amount of USDC to commit
-    /// @dev requirements are checked in _payWithToken
-    function payWithUSDC(uint256 amount) external {
-        _payWithToken(USDC, amount);
-    }
-
     /// @notice Mint an NFT, if whitelisted
     /// @dev The address must have made a minimum payment of USD $250
     function mint() external {
@@ -121,8 +123,7 @@ contract KronosSeedSale is Owned, ERC721 {
             "Address must have made a minimum payment of USD $250"
         );
 
-        // reset the metadata id to 0 for the address
-        // this is to prevent the address from minting more than one NFT
+        // reset the metadata id to 0 to prevent minting more than one NFT per address
         // allows the address to make another payment after minting
         // protects against reentrency attacks and reduces gas costs for minter
         metaIDForAddress[msg.sender] = 0;
@@ -131,12 +132,6 @@ contract KronosSeedSale is Owned, ERC721 {
         // mint and increment totalSupply after
         // using totalSupply as the token id
         _safeMint(msg.sender, totalSupply++);
-    }
-
-    /// @notice Flip the seed sale active state
-    /// @dev Only the owner can call this function
-    function flipSeedSaleActive() external onlyOwner {
-        seedSaleActive = !seedSaleActive;
     }
 
     /// @notice Set the base URI
