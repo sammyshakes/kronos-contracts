@@ -3,7 +3,7 @@ libs = ["lib"]
 out = "out"
 src = "src"
 
-#[rpc_endpoints]
+[rpc_endpoints]
 goerli = "${GOERLI_RPC_URL}"
 mainnet = "${MAINNET_RPC_URL}"
 mumbai = "${MUMBAI_RPC_URL}"
