@@ -11,6 +11,7 @@ contract DeploySeedSale is Script {
 
     address public usdtAddress = vm.envAddress("USDT_CONTRACT_ADDRESS");
     address public usdcAddress = vm.envAddress("USDC_CONTRACT_ADDRESS");
+    string public baseURI = vm.envString("KRONOS_SEED_SALE_BASE_URI");
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("TESTNET_DEV_DEPLOYER_PRIVATE_KEY");
@@ -19,7 +20,7 @@ contract DeploySeedSale is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy Seed Sale Contract
-        seedSaleContract = new KronosSeedSale(usdtAddress, usdcAddress);
+        seedSaleContract = new KronosSeedSale(usdtAddress, usdcAddress, baseURI);
 
         //switch on the seed sale
         seedSaleContract.flipSeedSaleActive();

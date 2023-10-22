@@ -75,14 +75,24 @@ This will:
 KRONOS_CONTRACT_ADDRESS=
 ```
 
-### 6. Call `flipSeedSaleActive()` on the deployed contract to activate the sale.
+### 6. Run `AddToWhitelist.s.sol` script to add addresses to whitelist.
 
-    ```r
-    forge script script/FlipSeedSaleActive.s.sol:FlipSeedSaleActive -vvvv --rpc-url mainnet --broadcast
-    ```
+- Set the addresses to be added to the whitelist in the `AddToWhitelist.s.sol` script.
+- Set metadata Id for the addresses to be added in the `AddToWhitelist.s.sol` script.
+- Run the script:
 
-### 7. Call `flipSeedSaleActive()` on the deployed contract to deactivate the sale.
+```bash
+forge script script/AddToWhitelist.s.sol:AddToWhitelist -vvvv --rpc-url mainnet --broadcast
+```
 
-    ```r
-    forge script script/FlipSeedSaleActive.s.sol:FlipSeedSaleActive -vvvv --rpc-url mainnet --broadcast
-    ```
+### 7. Call `flipSeedSaleActive()` on the deployed contract to activate the sale.
+
+```bash
+forge script script/FlipSeedSaleActive.s.sol:FlipSeedSaleActive -vvvv --rpc-url mainnet --broadcast
+```
+
+### 8. Call `flipSeedSaleActive()` on the deployed contract to deactivate the sale.
+
+```bash
+forge script script/FlipSeedSaleActive.s.sol:FlipSeedSaleActive -vvvv --rpc-url mainnet --broadcast
+```

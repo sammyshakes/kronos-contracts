@@ -19,6 +19,8 @@ contract KronosSeedSaleTest is Test {
 
     uint256 public minCommitAmount = 250e6;
 
+    string public baseURI = "http://base-uri.com/";
+
     function setUp() public {
         user1 = address(0x1);
         user2 = address(0x2);
@@ -27,14 +29,14 @@ contract KronosSeedSaleTest is Test {
 
         USDT = new ERC20Mock();
         USDC = new ERC20Mock();
-        seedSale = new KronosSeedSale(address(USDT), address(USDC));
+        seedSale = new KronosSeedSale(address(USDT), address(USDC), baseURI);
 
         //mint USDT and USDC to user1 and user2
         USDT.mint(whitelistedAddress, minCommitAmount * 100);
         USDC.mint(whitelistedAddress, minCommitAmount * 100);
 
-        //set baseURI
-        seedSale.setBaseURI("http://base-uri.com/");
+        // //set baseURI
+        // seedSale.setBaseURI("http://base-uri.com/");
 
         address[] memory wallets = new address[](1);
         uint128[] memory nftIDs = new uint128[](1);
@@ -320,7 +322,7 @@ contract KronosSeedSaleTest is Test {
 
     function testSetBaseURI() public {
         seedSale.setBaseURI("http://new-base-uri.com/");
-        string memory baseURI = seedSale.baseURI();
+        baseURI = seedSale.baseURI();
         assertEq(baseURI, "http://new-base-uri.com/", "Base URI should be updated");
     }
 
