@@ -1,3 +1,38 @@
+# Kronos Smart Contract Repository
+
+## Installation
+
+- [Foundry](https://book.getfoundry.sh/getting-started/installation.html) must be installed locally
+
+1. Clone the repository containing the contract source code and deployment script:
+
+   ```
+   git clone git@github.com:kr0nos-bot/kronos-contracts.git
+   cd kronos-contracts
+   ```
+
+2. Install dependencies:
+
+   ```
+   forge install
+   ```
+
+## Contract Testing
+
+### To run the tests:
+
+```bash
+## without traces
+forge test
+
+#with traces
+forge test --vvvv
+```
+
+---
+
+---
+
 # KronosSeedSale - DROP SOP
 
 Standard operating procedure for deploying the KronosSeedSale contract
@@ -6,7 +41,6 @@ Standard operating procedure for deploying the KronosSeedSale contract
 
 ## Prerequisites
 
-- [Foundry](https://book.getfoundry.sh/getting-started/installation.html) installed locally
 - Funded Ethereum account (Deployer)
 - Etherscan API key
 - RPC URL (Mainnet)
@@ -31,21 +65,6 @@ WITHDRAWAL_ADDRESS=
 # Base URI for Kronos NFTs
 KRONOS_BASE_URI="https://gateway.pinata.cloud/ipfs/QmaVP4c8aXPdQLSx3x6zcBGT44PyeZeD7NBReA9Rx1oojT/"
 ```
-
-## Installation
-
-1. Clone the repository containing the contract source code and deployment script:
-
-   ```
-   git clone git@github.com:kr0nos-bot/kronos-contracts.git
-   cd kronos-contracts
-   ```
-
-2. Install dependencies:
-
-   ```
-   forge install
-   ```
 
 ## Deployment
 
