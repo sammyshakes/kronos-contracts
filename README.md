@@ -124,7 +124,7 @@ KRONOS_CONTRACT_ADDRESS=
 forge script script/AddSeedSaleToMultisig.s.sol:AddSeedSaleToMultisig -vvvv --rpc-url mainnet --broadcast
 ```
 
-### 6. Run `AddToWhitelist.s.sol` script to add addresses to whitelist.
+### 7. Run `AddToWhitelist.s.sol` script to add addresses to whitelist.
 
 - Set the addresses to be added to the whitelist in the `AddToWhitelist.s.sol` script.
 - Set metadata Id for the addresses to be added in the `AddToWhitelist.s.sol` script.
@@ -134,13 +134,13 @@ forge script script/AddSeedSaleToMultisig.s.sol:AddSeedSaleToMultisig -vvvv --rp
 forge script script/AddToWhitelist.s.sol:AddToWhitelist -vvvv --rpc-url mainnet --broadcast
 ```
 
-### 7. Call `flipSeedSaleActive()` on the deployed contract to activate the sale.
+### 8. Call `flipSeedSaleActive()` on the deployed contract to activate the sale.
 
 ```bash
 forge script script/FlipSeedSaleActive.s.sol:FlipSeedSaleActive -vvvv --rpc-url mainnet --broadcast
 ```
 
-### 8. Call `flipSeedSaleActive()` on the deployed contract to deactivate the sale.
+### 9. Call `flipSeedSaleActive()` on the deployed contract to deactivate the sale.
 
 ```bash
 forge script script/FlipSeedSaleActive.s.sol:FlipSeedSaleActive -vvvv --rpc-url mainnet --broadcast
