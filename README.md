@@ -59,21 +59,33 @@ DEPLOYER_PRIVATE_KEY=
 USDT_CONTRACT_ADDRESS=0xdAC17F958D2ee523a2206206994597C13D831ec7
 USDC_CONTRACT_ADDRESS=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
 
-# Withdrawal address for USDT and USDC
-WITHDRAWAL_ADDRESS=
+# Multi-sig address will be used for withdrawing USDT and USDC
+KRONOS_MULTISIG_ADDRESS=
 
 # Base URI for Kronos NFTs
 KRONOS_BASE_URI="https://gateway.pinata.cloud/ipfs/QmaVP4c8aXPdQLSx3x6zcBGT44PyeZeD7NBReA9Rx1oojT/"
 ```
 
-## Deployment
+## Deployment of `KronosMultiSig.sol`
+
+```bash
+forge script script/DeployMultisig.s.sol:DeployMultisig -vvvv --rpc-url sepolia --broadcast --verify
+```
+
+- Set the Multisig wallet address into the `.env` file:
+
+```r
+KRONOS_MULTISIG_ADDRESS=
+```
+
+## Deployment of `KronosSeedSale.sol`
 
 ### 3. Set the following environment variables:
 
 - `DEPLOYER_PRIVATE_KEY` - Private key of the deployer account
 - `USDT_CONTRACT_ADDRESS` - USDT token address on Mainnet
 - `USDC_CONTRACT_ADDRESS` - USDC token address on Mainnet
-- `WITHDRAWAL_ADDRESS` - Address to which USDT and USDC will be transferred
+- `KRONOS_MULTISIG_ADDRESS` - Address to which USDT and USDC will be transferred
 - `KRONOS_BASE_URI` - Base URI for Kronos NFTs
 
 ### 4. Run the `DeploySeedSale.s.sol` script:

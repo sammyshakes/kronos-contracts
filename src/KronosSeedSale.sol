@@ -60,7 +60,10 @@ contract KronosSeedSale is Owned, ERC721 {
     /// @dev The metadata id is the id of the metadata json file that will be used for the token uri
     function addToWhitelist(address[] calldata wallets, uint256 metadataId) external onlyOwner {
         for (uint256 i; i < wallets.length; i++) {
-            require(metaIDForAddress[wallets[i]] == 0, "Address is already on the whitelist");
+            require(
+                metaIDForAddress[wallets[i]] == 0 && USDTokenAmountCommitted[wallets[i]] == 0,
+                "Address is already on the whitelist"
+            );
             metaIDForAddress[wallets[i]] = metadataId;
         }
     }
