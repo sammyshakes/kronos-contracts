@@ -33,11 +33,28 @@ contract KronosSeedSaleTest is Test {
         user2 = address(0x2);
         owner = address(0x3);
         whitelistedAddress = address(0x4);
-        withdrawAddress = address(0x5);
+
+        //setup the multisig wallet
+        owner1 = address(0x1);
+        owner2 = address(0x2);
+        owner3 = address(0x3);
+
+        address[] memory owners = new address[](3);
+        owners[0] = owner1;
+        owners[1] = owner2;
+        owners[2] = owner3;
+
+        wallet = new KronosMultiSig(owners, 2);
+
+        withdrawAddress = address(wallet);
 
         USDT = new ERC20Mock();
         USDC = new ERC20Mock();
         seedSale = new KronosSeedSale(address(USDT), address(USDC), withdrawAddress, baseURI);
+
+        //set seed sale address on the multisig wallet
+        vm.prank(owner1);
+        wallet.setSeedSaleAddress(address(seedSale));
 
         //mint USDT and USDC to user1 and user2
         USDT.mint(whitelistedAddress, minCommitAmount * 100);
@@ -61,18 +78,6 @@ contract KronosSeedSaleTest is Test {
 
         //verify maximum total payment is correct
         assertEq(seedSale.MAXIMUM_TOTAL_PAYMENT(), 5000e6, "Maximum total payment should be 5000e6");
-
-        //setup the multisig wallet
-        owner1 = address(0x1);
-        owner2 = address(0x2);
-        owner3 = address(0x3);
-
-        address[] memory owners = new address[](3);
-        owners[0] = owner1;
-        owners[1] = owner2;
-        owners[2] = owner3;
-
-        wallet = new KronosMultiSig(owners, 2);
     }
 
     function testAddToWhitelist() public {
@@ -380,9 +385,9 @@ contract KronosSeedSaleTest is Test {
         seedSale.withdrawTokens(address(USDT));
         vm.stopPrank();
 
-        //withdraw
-        vm.prank(withdrawAddress);
-        seedSale.withdrawTokens(address(USDT));
+        //withdraw by calling the withdraw function from the multisig wallet
+        vm.prank(owner1);
+        wallet.withdrawTokensFromKronosSeedSale(address(USDT));
 
         //get the balance of the withdraw address
         uint256 finalBalance = USDT.balanceOf(withdrawAddress);
@@ -394,4 +399,6 @@ contract KronosSeedSaleTest is Test {
             "Withdraw address should receive the funds"
         );
     }
+
+    //write function to test multisig wallet
 }

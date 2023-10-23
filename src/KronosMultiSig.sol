@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "./interfaces/IKronosSeedSale.sol";
+
 /// @title KronosMultiSig
 /// @notice This contract is used to create a multi-sig wallet
 contract KronosMultiSig {
@@ -15,6 +17,8 @@ contract KronosMultiSig {
     event ConfirmTransaction(address indexed owner, uint256 indexed txIndex);
     event RevokeConfirmation(address indexed owner, uint256 indexed txIndex);
     event ExecuteTransaction(address indexed owner, uint256 indexed txIndex);
+
+    IKronosSeedSale public seedSale;
 
     address[] public owners;
     mapping(address => bool) public isOwner;
@@ -92,6 +96,13 @@ contract KronosMultiSig {
     /// @notice Fallback function
     receive() external payable {
         emit Deposit(msg.sender, msg.value, address(this).balance);
+    }
+
+    /// @notice Withdraw tokens from the contract
+    /// @param token The address of the token to withdraw
+    /// @dev This function is called by an owner
+    function withdrawTokensFromKronosSeedSale(address token) public onlyOwner {
+        seedSale.withdrawTokens(token);
     }
 
     /// @notice Submit a transaction
@@ -207,5 +218,13 @@ contract KronosMultiSig {
             transaction.executed,
             transaction.numConfirmations
         );
+    }
+
+    /// @notice Set the seed sale contract
+    /// @param _seedSale The address of the seed sale contract
+    /// @dev This function is called by an owner
+    function setSeedSaleAddress(address _seedSale) public onlyOwner {
+        require(_seedSale != address(0), "invalid seed sale address");
+        seedSale = IKronosSeedSale(_seedSale);
     }
 }
