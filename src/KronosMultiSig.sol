@@ -98,10 +98,19 @@ contract KronosMultiSig {
         emit Deposit(msg.sender, msg.value, address(this).balance);
     }
 
-    /// @notice Withdraw tokens from the contract
+    /// @notice Set the KRONOS seed sale contract
+    /// @param _seedSale The address of the seed sale contract
+    /// @dev This function is called by an owner
+    function setSeedSaleAddress(address _seedSale) public onlyOwner {
+        require(_seedSale != address(0), "invalid seed sale address");
+        seedSale = IKronosSeedSale(_seedSale);
+    }
+
+    /// @notice Withdraw tokens from the KRONOS seed sale contract
     /// @param token The address of the token to withdraw
     /// @dev This function is called by an owner
     function withdrawTokensFromKronosSeedSale(address token) public onlyOwner {
+        require(address(seedSale) != address(0), "seed sale address not set");
         seedSale.withdrawTokens(token);
     }
 
@@ -218,13 +227,5 @@ contract KronosMultiSig {
             transaction.executed,
             transaction.numConfirmations
         );
-    }
-
-    /// @notice Set the seed sale contract
-    /// @param _seedSale The address of the seed sale contract
-    /// @dev This function is called by an owner
-    function setSeedSaleAddress(address _seedSale) public onlyOwner {
-        require(_seedSale != address(0), "invalid seed sale address");
-        seedSale = IKronosSeedSale(_seedSale);
     }
 }
