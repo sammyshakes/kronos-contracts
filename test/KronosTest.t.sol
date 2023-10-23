@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.13;
 
 //import mock erc20 contracts from openzeppelin
@@ -7,6 +6,7 @@ import "openzeppelin-contracts/contracts/mocks/token/ERC20Mock.sol";
 
 import "forge-std/Test.sol";
 import "../src/KronosSeedSale.sol";
+import "../src/KronosMultiSig.sol";
 
 contract KronosSeedSaleTest is Test {
     KronosSeedSale public seedSale;

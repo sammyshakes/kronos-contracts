@@ -15,7 +15,7 @@ contract DeploySeedSale is Script {
     string public baseURI = vm.envString("KRONOS_BASE_URI");
 
     function run() external {
-        uint256 deployerPrivateKey = uint256(vm.envBytes32("TESTNET_DEV_DEPLOYER_ADDRESS"));
+        uint256 deployerPrivateKey = uint256(vm.envBytes32("TESTNET_DEV_DEPLOYER_PRIVATE_KEY"));
 
         //Deploy Tronic Master Contracts
         vm.startBroadcast(deployerPrivateKey);

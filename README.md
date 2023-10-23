@@ -29,7 +29,7 @@ USDC_CONTRACT_ADDRESS=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
 WITHDRAWAL_ADDRESS=
 
 # Base URI for Kronos NFTs
-KRONOS_BASE_URI=
+KRONOS_BASE_URI="https://gateway.pinata.cloud/ipfs/QmaVP4c8aXPdQLSx3x6zcBGT44PyeZeD7NBReA9Rx1oojT/"
 ```
 
 ## Installation
