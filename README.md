@@ -59,17 +59,21 @@ DEPLOYER_PRIVATE_KEY=
 USDT_CONTRACT_ADDRESS=0xdAC17F958D2ee523a2206206994597C13D831ec7
 USDC_CONTRACT_ADDRESS=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
 
-# Multi-sig address will be used for withdrawing USDT and USDC
+# Multi-sig address will be used for withdraw address
 KRONOS_MULTISIG_ADDRESS=
 
 # Base URI for Kronos NFTs
-KRONOS_BASE_URI="https://gateway.pinata.cloud/ipfs/QmaVP4c8aXPdQLSx3x6zcBGT44PyeZeD7NBReA9Rx1oojT/"
+KRONOS_BASE_URI="ipfs://QmQZFPfNCtfd92icLPuHVdCFfCRWTQp2KSz6Wm8wTvRXoE/"
 ```
 
 ## Deployment of `KronosMultiSig.sol`
 
+- Set the addresses of the owners.
+- Set the number of comfirmations required for successful Tx.
+- Run the script:
+
 ```bash
-forge script script/DeployMultisig.s.sol:DeployMultisig -vvvv --rpc-url sepolia --broadcast --verify
+forge script script/DeployMultisig.s.sol:DeployMultisig -vvvv --rpc-url mainnet --broadcast --verify
 ```
 
 - Set the Multisig wallet address into the `.env` file:
@@ -109,6 +113,15 @@ This will:
 
 ```r
 KRONOS_CONTRACT_ADDRESS=
+```
+
+### 6. Add the contract address to the `KronosMultiSig.sol` contract.
+
+- Set the contract address in the `AddContractAddress.s.sol` script.
+- Run the script:
+
+```bash
+forge script script/AddSeedSaleToMultisig.s.sol:AddSeedSaleToMultisig -vvvv --rpc-url mainnet --broadcast
 ```
 
 ### 6. Run `AddToWhitelist.s.sol` script to add addresses to whitelist.
