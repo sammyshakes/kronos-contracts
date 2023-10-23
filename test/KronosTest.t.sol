@@ -18,6 +18,11 @@ contract KronosSeedSaleTest is Test {
     address public whitelistedAddress;
     address public withdrawAddress;
 
+    KronosMultiSig public wallet;
+    address public owner1;
+    address public owner2;
+    address public owner3;
+
     uint256 public minCommitAmount = 250e6;
     uint256 public maxCommitAmount = 5000e6;
 
@@ -56,6 +61,18 @@ contract KronosSeedSaleTest is Test {
 
         //verify maximum total payment is correct
         assertEq(seedSale.MAXIMUM_TOTAL_PAYMENT(), 5000e6, "Maximum total payment should be 5000e6");
+
+        //setup the multisig wallet
+        owner1 = address(0x1);
+        owner2 = address(0x2);
+        owner3 = address(0x3);
+
+        address[] memory owners = new address[](3);
+        owners[0] = owner1;
+        owners[1] = owner2;
+        owners[2] = owner3;
+
+        wallet = new KronosMultiSig(owners, 2);
     }
 
     function testAddToWhitelist() public {

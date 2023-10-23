@@ -2,13 +2,12 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
-import "../src/MultiSigWallet.sol";
-//import erc20 mock from openzeppelin
+import "../src/KronosMultiSig.sol";
 import "openzeppelin-contracts/contracts/mocks/token/ERC20Mock.sol";
 
 contract MultiSigWalletTest is Test {
     ERC20Mock public token;
-    MultiSigWallet public wallet;
+    KronosMultiSig public wallet;
     address public owner1;
     address public owner2;
     address public owner3;
@@ -26,7 +25,7 @@ contract MultiSigWalletTest is Test {
         owners[1] = owner2;
         owners[2] = owner3;
 
-        wallet = new MultiSigWallet(owners, 2);
+        wallet = new KronosMultiSig(owners, 2);
 
         // deal ether to owners
         vm.deal(owner1, 100 ether);
@@ -40,10 +39,6 @@ contract MultiSigWalletTest is Test {
 
         //mint tokens to wallet
         token.mint(address(wallet), 1000 ether);
-
-        // //approve tokens to wallet
-        // vm.prank(owner1);
-        // token.approve(address(wallet), 1000 ether);
 
         //deal ether to this contract
         vm.deal(address(wallet), 100 ether);
@@ -94,8 +89,7 @@ contract MultiSigWalletTest is Test {
         wallet.confirmTransaction(0);
         vm.stopPrank();
 
-        (address to, uint256 value, bytes memory data, bool executed, uint256 numConfirmations) =
-            wallet.getTransaction(0);
+        (,,,, uint256 numConfirmations) = wallet.getTransaction(0);
 
         assertEq(numConfirmations, 1, "Confirmation count should be 1");
     }
@@ -108,8 +102,7 @@ contract MultiSigWalletTest is Test {
         wallet.revokeConfirmation(0);
         vm.stopPrank();
         // Destructuring the tuple returned by getTransaction
-        (address to, uint256 value, bytes memory data, bool executed, uint256 numConfirmations) =
-            wallet.getTransaction(0);
+        (,,,, uint256 numConfirmations) = wallet.getTransaction(0);
 
         assertEq(numConfirmations, 0, "Confirmation count should be 0");
     }
