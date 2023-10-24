@@ -7,7 +7,7 @@ import "../src/KronosSeedSale.sol";
 import "../src/KronosMultiSig.sol";
 
 contract AddSeedSaleToMultisig is Script {
-    uint256 deployerPrivateKey = vm.envUint("TESTNET_DEV_DEPLOYER_PRIVATE_KEY");
+    uint256 deployerPrivateKey = uint256(vm.envBytes32("TESTNET_DEV_DEPLOYER_PRIVATE_KEY"));
 
     address payable public withdrawAddress = payable(vm.envAddress("KRONOS_MULTISIG_ADDRESS"));
     address public seedSaleContractAddress = vm.envAddress("KRONOS_CONTRACT_ADDRESS");

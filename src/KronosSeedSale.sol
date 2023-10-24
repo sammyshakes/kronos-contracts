@@ -59,6 +59,7 @@ contract KronosSeedSale is Owned, ERC721 {
     /// @param wallets The addresses to add to the whitelist
     /// @param metadataId The metadata id to assign to these address
     /// @dev The metadata id is the id of the metadata json file that will be used for the token uri
+    /// @dev Only admins can call this function
     function addToWhitelist(address[] calldata wallets, uint256 metadataId) external {
         require(_admins[msg.sender] || msg.sender == owner, "Only admins can call this function");
         for (uint256 i; i < wallets.length; i++) {
