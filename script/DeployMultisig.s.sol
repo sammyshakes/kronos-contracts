@@ -13,6 +13,8 @@ contract DeployMultisig is Script {
     address public owner2 = vm.envAddress("SHAKES_DEV_DEPLOYER_ADDRESS");
     address public owner3;
 
+    address public requiredConfirmationAddress = address(0x1);
+
     uint256 numComfirmations = 2;
 
     function run() external {
@@ -28,7 +30,7 @@ contract DeployMultisig is Script {
         //Deploy Tronic Master Contracts
         vm.startBroadcast(deployerPrivateKey);
 
-        wallet = new KronosMultiSig(owners, 2);
+        wallet = new KronosMultiSig(owners, requiredConfirmationAddress, numComfirmations);
 
         vm.stopBroadcast();
     }

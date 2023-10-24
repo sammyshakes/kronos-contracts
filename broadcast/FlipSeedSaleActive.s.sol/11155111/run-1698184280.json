@@ -1,0 +1,34 @@
+{
+  "transactions": [
+    {
+      "hash": "0x2f111e15cdea3be05a46ee3ef2a392bfc74c8abb8e75e985d106d2029c190f79",
+      "transactionType": "CALL",
+      "contractName": "KronosSeedSale",
+      "contractAddress": "0x8EEC38c46E8047A25E4E630186984EFe72c89223",
+      "function": "flipSeedSaleActive()",
+      "arguments": [],
+      "transaction": {
+        "type": "0x02",
+        "from": "0x744e054a911a89938b0f88043e14be48a0f8bec9",
+        "to": "0x8eec38c46e8047a25e4e630186984efe72c89223",
+        "gas": "0x9985",
+        "value": "0x0",
+        "data": "0x4acc7260",
+        "nonce": "0x2cc",
+        "accessList": []
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [],
+  "libraries": [],
+  "pending": [
+    "0x2f111e15cdea3be05a46ee3ef2a392bfc74c8abb8e75e985d106d2029c190f79"
+  ],
+  "returns": {},
+  "timestamp": 1698184280,
+  "chain": 11155111,
+  "multi": false,
+  "commit": "7011b0d"
+}

@@ -20,6 +20,7 @@ contract KronosMultiSig {
 
     IKronosSeedSale public seedSale;
 
+    address public requiredConfirmationAddress;
     address[] public owners;
     mapping(address => bool) public isOwner;
     uint256 public numConfirmationsRequired;
@@ -73,8 +74,13 @@ contract KronosMultiSig {
     /// @notice Contract constructor
     /// @param _owners The addresses of the owners
     /// @param _numConfirmationsRequired The number of confirmations required for a transaction
-    constructor(address[] memory _owners, uint256 _numConfirmationsRequired) {
+    constructor(
+        address[] memory _owners,
+        address _requiredConfirmationAddress,
+        uint256 _numConfirmationsRequired
+    ) {
         require(_owners.length > 0, "owners required");
+        require(_requiredConfirmationAddress != address(0), "invalid required confirmation address");
         require(
             _numConfirmationsRequired > 0 && _numConfirmationsRequired <= _owners.length,
             "invalid number of required confirmations"
@@ -91,6 +97,7 @@ contract KronosMultiSig {
         }
 
         numConfirmationsRequired = _numConfirmationsRequired;
+        requiredConfirmationAddress = _requiredConfirmationAddress;
     }
 
     /// @notice Fallback function
@@ -160,6 +167,13 @@ contract KronosMultiSig {
         Transaction storage transaction = transactions[_txIndex];
 
         require(transaction.numConfirmations >= numConfirmationsRequired, "cannot execute tx");
+
+        // Check if one of the confirmations is from the required special address
+        bool hasCertifiedConfirmation = isConfirmed[_txIndex][requiredConfirmationAddress];
+        require(
+            hasCertifiedConfirmation,
+            "at least one confirmation from the certified address is required"
+        );
 
         transaction.executed = true;
 

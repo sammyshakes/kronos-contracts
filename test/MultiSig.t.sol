@@ -25,7 +25,7 @@ contract MultiSigWalletTest is Test {
         owners[1] = owner2;
         owners[2] = owner3;
 
-        wallet = new KronosMultiSig(owners, 2);
+        wallet = new KronosMultiSig(owners, owner1, 2);
 
         // deal ether to owners
         vm.deal(owner1, 100 ether);
@@ -247,4 +247,66 @@ contract MultiSigWalletTest is Test {
         // Check that the seedSale address has been updated
         assertEq(address(wallet.seedSale()), address(this), "Seed sale address should be updated");
     }
+
+    function testRequiredConfirmation() public {
+        // Owner1 submits a transaction
+        vm.startPrank(owner2);
+        wallet.submitTransaction(owner2, 100, "");
+
+        // Owner2 confirms
+        wallet.confirmTransaction(0);
+
+        //owner2 attempts to confirm twice - should fail
+        vm.expectRevert();
+        wallet.confirmTransaction(0);
+        vm.stopPrank();
+
+        // Owner3 confirms (not the required confirmation address)
+        vm.startPrank(owner3);
+        wallet.confirmTransaction(0);
+        vm.stopPrank();
+
+        // Try to execute the transaction with two confirmations, but it should fail
+        vm.startPrank(owner1);
+        vm.expectRevert();
+        wallet.executeTransaction(0);
+        vm.stopPrank();
+
+        // Owner2 confirms (the required confirmation address)
+        vm.startPrank(owner1);
+        wallet.confirmTransaction(0);
+
+        // Now try to execute the transaction with the required confirmation, it should succeed
+        vm.startPrank(owner1);
+        wallet.executeTransaction(0);
+        vm.stopPrank();
+
+        // Check if the transaction was executed successfully
+        (,,, bool executed,) = wallet.getTransaction(0);
+        assertTrue(executed, "Transaction should be executed");
+    }
+
+    // function testMultipleConfirmationsAndExecution() public {
+    //     // Owner1 submits a transaction
+    //     vm.startPrank(owner1);
+    //     wallet.submitTransaction(owner2, 100, "");
+
+    //     vm.stopPrank();
+
+    //     // Owner2 confirms
+    //     vm.startPrank(owner2);
+    //     wallet.confirmTransaction(0);
+    //     vm.stopPrank();
+
+    //     // Owner3 confirms and tries to execute without required confirmation
+    //     vm.startPrank(owner3);
+    //     wallet.confirmTransaction(0);
+    //     vm.expectRevert();
+    //     wallet.executeTransaction(0);
+    //     vm.stopPrank();
+
+    //     // Check if the transaction was executed successfully
+    //     (,,, bool executed,) = wallet.getTransaction(0);
+    //     assertTrue(executed, "Transaction should be executed");
+    // }
 }

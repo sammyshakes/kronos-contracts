@@ -46,7 +46,7 @@ contract KronosSeedSaleTest is Test {
         owners[1] = owner2;
         owners[2] = owner3;
 
-        wallet = new KronosMultiSig(owners, 2);
+        wallet = new KronosMultiSig(owners, owner1, 2);
 
         withdrawAddress = address(wallet);
 

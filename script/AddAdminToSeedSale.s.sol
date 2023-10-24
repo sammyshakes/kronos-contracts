@@ -15,7 +15,11 @@ contract AddAdminToSeedSale is Script {
 
     KronosSeedSale public seedSaleContract;
 
-    address[] admins = [whitlistAddy2, address(0x3)];
+    address[] admins = [
+        whitlistAddy2,
+        0xe4572D69cDdf8D77a8935B5e1cc5880a750036Fe,
+        0xbAf53d5A52bE22497393Fb94Ee8B8fd5576217E4
+    ];
 
     function run() external {
         seedSaleContract = KronosSeedSale(seedSaleContractAddress);

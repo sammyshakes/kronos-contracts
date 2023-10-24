@@ -1,0 +1,36 @@
+{
+  "transactions": [
+    {
+      "hash": "0xb6dd0caf85829ad556f8fb90adc2d40faeaa92f303a238d073b716dabfafe893",
+      "transactionType": "CALL",
+      "contractName": "KronosMultiSig",
+      "contractAddress": "0x2750Aa6E84d57Dd88e26F7f9fc49cA65f1bb1D00",
+      "function": "setSeedSaleAddress(address)",
+      "arguments": [
+        "0x8EEC38c46E8047A25E4E630186984EFe72c89223"
+      ],
+      "transaction": {
+        "type": "0x02",
+        "from": "0x744e054a911a89938b0f88043e14be48a0f8bec9",
+        "to": "0x2750aa6e84d57dd88e26f7f9fc49ca65f1bb1d00",
+        "gas": "0xf902",
+        "value": "0x0",
+        "data": "0x260e764c0000000000000000000000008eec38c46e8047a25e4e630186984efe72c89223",
+        "nonce": "0x2c8",
+        "accessList": []
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [],
+  "libraries": [],
+  "pending": [
+    "0xb6dd0caf85829ad556f8fb90adc2d40faeaa92f303a238d073b716dabfafe893"
+  ],
+  "returns": {},
+  "timestamp": 1698183174,
+  "chain": 11155111,
+  "multi": false,
+  "commit": "7011b0d"
+}
