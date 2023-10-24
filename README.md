@@ -37,17 +37,28 @@ forge test --vvvv
 
 Standard operating procedure for deploying the KronosSeedSale contract
 
-## Deploying `KronosSeedSale.sol` :
+## Deployment of `KronosMultiSig.sol` and `KronosSeedSale.sol` :
 
 ## Prerequisites
 
 - Funded Ethereum account (Deployer)
 - Etherscan API key
 - RPC URL (Mainnet)
+
+### MultiSig Wallet
+
+- Multisig owner addresses
+- Multisig required confirmation address
+- Multisig Number of confirmations required - currently: (3)
+
+### SeedSale Contract
+
 - USDT and USDC contract addresses
 - Base URI for Kronos NFTs
+- Multisig address (once deployed)
 
 ```r
+
 # Deployment environment variables
 MAINNET_RPC_URL=
 ETHERSCAN_API_KEY=
@@ -59,7 +70,7 @@ DEPLOYER_PRIVATE_KEY=
 USDT_CONTRACT_ADDRESS=0xdAC17F958D2ee523a2206206994597C13D831ec7
 USDC_CONTRACT_ADDRESS=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
 
-# Multi-sig address will be used for withdraw address
+# Multi-sig address (once deployed)
 KRONOS_MULTISIG_ADDRESS=
 
 # Base URI for Kronos NFTs
@@ -69,6 +80,7 @@ KRONOS_BASE_URI="ipfs://QmQZFPfNCtfd92icLPuHVdCFfCRWTQp2KSz6Wm8wTvRXoE/"
 ## Deployment of `KronosMultiSig.sol`
 
 - Set the addresses of the owners.
+- Set the required confirmation address.
 - Set the number of comfirmations required for successful Tx.
 - Run the script:
 
