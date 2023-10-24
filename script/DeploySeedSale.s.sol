@@ -23,9 +23,6 @@ contract DeploySeedSale is Script {
         // Deploy Seed Sale Contract
         seedSaleContract = new KronosSeedSale(usdtAddress, usdcAddress, withdrawAddress, baseURI);
 
-        //switch on the seed sale
-        seedSaleContract.flipSeedSaleActive();
-
         vm.stopBroadcast();
     }
 }

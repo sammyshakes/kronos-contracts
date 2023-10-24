@@ -17,14 +17,6 @@ contract AddToWhitelist is Script {
 
     function run() external {
         seedSaleContract = KronosSeedSale(seedSaleContractAddress);
-        // address[] memory wallets = [address(0x1), address(0x2), address(0x3)];
-
-        // Populate arrays with random addresses and nft ids
-        // These are just for testing purposes
-        // In production, you will use the actual addresses and nft ids that you want to whitelist
-        // wallets[0] = address(0x1);
-        // wallets[1] = address(0x2);
-        // wallets[2] = address(0x3);
 
         //Deploy Tronic Master Contracts
         vm.startBroadcast(deployerPrivateKey);

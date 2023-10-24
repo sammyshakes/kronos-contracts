@@ -144,4 +144,107 @@ contract MultiSigWalletTest is Test {
         vm.prank(notAnOwner);
         wallet.submitTransaction(owner1, 100, bytes("test"));
     }
+
+    function testMultipleConfirmationsAndExecution() public {
+        // Owner1 submits a transaction
+        vm.startPrank(owner1);
+        wallet.submitTransaction(owner2, 100, "");
+        // Owner1 confirms
+        wallet.confirmTransaction(0);
+        vm.stopPrank();
+
+        // Owner2 confirms
+        vm.startPrank(owner2);
+        wallet.confirmTransaction(0);
+        vm.stopPrank();
+
+        // Owner3 executes
+        vm.startPrank(owner3);
+        wallet.executeTransaction(0);
+
+        // Check if the transaction was executed successfully
+        (,,, bool executed,) = wallet.getTransaction(0);
+        assertTrue(executed, "Transaction should be executed");
+    }
+
+    function testConfirmationRevocation() public {
+        // Owner1 submits a transaction
+        vm.startPrank(owner1);
+        wallet.submitTransaction(owner2, 100, "");
+        // Owner1 confirms
+        wallet.confirmTransaction(0);
+        vm.stopPrank();
+
+        // Owner1 revokes their confirmation
+        vm.startPrank(owner1);
+        wallet.revokeConfirmation(0);
+        vm.stopPrank();
+
+        // Check if the confirmation was successfully revoked
+        (,,,, uint256 numConfirmations) = wallet.getTransaction(0);
+        assertEq(numConfirmations, 0, "Confirmation count should be 0");
+    }
+
+    function testInvalidTransaction() public {
+        // Submit an invalid transaction (e.g., sending ether to a contract without a receive function)
+        vm.startPrank(owner1);
+        wallet.submitTransaction(address(this), 100, "");
+        wallet.confirmTransaction(0);
+        vm.stopPrank();
+
+        // Owner2 confirms the invalid transaction
+        vm.startPrank(owner2);
+        wallet.confirmTransaction(0);
+        vm.stopPrank();
+
+        // Owner3 confirms the invalid transaction
+        vm.startPrank(owner3);
+        wallet.confirmTransaction(0);
+        vm.stopPrank();
+
+        // Execute the invalid transaction with three confirmations
+        vm.startPrank(owner1);
+        vm.expectRevert();
+        wallet.executeTransaction(0);
+    }
+
+    function testEtherWithdrawal() public {
+        uint256 initialBalance = address(wallet).balance;
+
+        // Owner1 withdraws some ether
+        vm.startPrank(owner1);
+        wallet.submitTransaction(owner1, 50 ether, "");
+        wallet.confirmTransaction(0);
+        vm.stopPrank();
+
+        // Owner2 confirms the invalid transaction
+        vm.startPrank(owner2);
+        wallet.confirmTransaction(0);
+        vm.stopPrank();
+
+        // Owner3 confirms the invalid transaction
+        vm.startPrank(owner3);
+        wallet.confirmTransaction(0);
+        wallet.executeTransaction(0);
+        vm.stopPrank();
+
+        // Check if the balance of the contract decreased
+        uint256 finalBalance = address(wallet).balance;
+        assertEq(
+            finalBalance, initialBalance - 50 ether, "Balance should decrease after withdrawal"
+        );
+    }
+
+    function testSetSeedSaleAddress() public {
+        // Check that the seedSale address is initially set to address(0)
+        assertEq(address(wallet.seedSale()), address(0), "Seed sale address should be address(0)");
+
+        // Set the seedSale address
+        vm.startPrank(owner1);
+        wallet.setSeedSaleAddress(address(this));
+        vm.stopPrank();
+
+        // Check that the seedSale address has been updated
+        assertEq(address(wallet.seedSale()), address(this), "Seed sale address should be updated");
+    }
 }
