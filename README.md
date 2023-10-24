@@ -117,14 +117,23 @@ KRONOS_CONTRACT_ADDRESS=
 
 ### 6. Add the contract address to the `KronosMultiSig.sol` contract.
 
-- Set the contract address in the `AddContractAddress.s.sol` script.
+- Set the contract address in the `AddSeedSaleToMultisig.s.sol` script.
 - Run the script:
 
 ```bash
 forge script script/AddSeedSaleToMultisig.s.sol:AddSeedSaleToMultisig -vvvv --rpc-url mainnet --broadcast
 ```
 
-### 7. Run `AddToWhitelist.s.sol` script to add addresses to whitelist.
+### 7. Add Admins to the `KronosSeedSale.sol` contract.
+
+- Set the contract addresses in the `AddAdminToSeedSale.s.sol` script.
+- Run the script:
+
+```bash
+forge script script/AddAdminToSeedSale.s.sol:AddAdminToSeedSale -vvvv --rpc-url mainnet --broadcast
+```
+
+### 8. Run `AddToWhitelist.s.sol` script to add addresses to whitelist.
 
 - Set the addresses to be added to the whitelist in the `AddToWhitelist.s.sol` script.
 - Set metadata Id for the addresses to be added in the `AddToWhitelist.s.sol` script.
@@ -134,14 +143,26 @@ forge script script/AddSeedSaleToMultisig.s.sol:AddSeedSaleToMultisig -vvvv --rp
 forge script script/AddToWhitelist.s.sol:AddToWhitelist -vvvv --rpc-url mainnet --broadcast
 ```
 
-### 8. Call `flipSeedSaleActive()` on the deployed contract to activate the sale.
+### 9. Call `flipSeedSaleActive()` on the deployed contract to activate the sale.
 
 ```bash
 forge script script/FlipSeedSaleActive.s.sol:FlipSeedSaleActive -vvvv --rpc-url mainnet --broadcast
 ```
 
-### 9. Call `flipSeedSaleActive()` on the deployed contract to deactivate the sale.
+### 10. Call `flipSeedSaleActive()` on the deployed contract to deactivate the sale.
 
 ```bash
 forge script script/FlipSeedSaleActive.s.sol:FlipSeedSaleActive -vvvv --rpc-url mainnet --broadcast
 ```
+
+### 11. Withdraw USDT and USDC from the contract.
+
+> Note: Withdrawals must be executed from `KronosMultiSig.sol` contract.
+
+- Execute the `withdrawTokensFromKronosSeedSale()` function on the `KronosMultiSig.sol` contract.
+
+- Input the contract address for USDT or USDC. (value can be retrieved from `KronosSeedSale` contract)
+
+### 12. Check balances of the `KronosMultiSig.sol` contract.
+
+Navigate to USDT and USDC contracts on Etherscan and check the balance of the `KronosMultiSig.sol` contract address.

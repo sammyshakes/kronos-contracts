@@ -1,0 +1,51 @@
+{
+  "transactions": [
+    {
+      "hash": "0x897fe0e76e8ac129919cad5d764b51985ca2ffd7584f3f36efaea3d044fbd9b4",
+      "transactionType": "CALL",
+      "contractName": "KronosMultiSig",
+      "contractAddress": "0xEF9C8B335f44ddA437a3F52ED5BAf3909ddE28aC",
+      "function": "setSeedSaleAddress(address)",
+      "arguments": [
+        "0xc5ac2217ad9F65B91863Ba8652d9EB2Bfed71156"
+      ],
+      "transaction": {
+        "type": "0x02",
+        "from": "0x744e054a911a89938b0f88043e14be48a0f8bec9",
+        "to": "0xef9c8b335f44dda437a3f52ed5baf3909dde28ac",
+        "gas": "0xf902",
+        "value": "0x0",
+        "data": "0x260e764c000000000000000000000000c5ac2217ad9f65b91863ba8652d9eb2bfed71156",
+        "nonce": "0x2bf",
+        "accessList": []
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [
+    {
+      "transactionHash": "0x897fe0e76e8ac129919cad5d764b51985ca2ffd7584f3f36efaea3d044fbd9b4",
+      "transactionIndex": "0x3",
+      "blockHash": "0xc07f46a6f066502a3dc5c81844ee62f354d87d38aa7517c3294609d82f2b2ed9",
+      "blockNumber": "0x458380",
+      "from": "0x744e054a911A89938B0f88043e14bE48A0f8BEc9",
+      "to": "0xEF9C8B335f44ddA437a3F52ED5BAf3909ddE28aC",
+      "cumulativeGasUsed": "0xd48f3",
+      "gasUsed": "0xb448",
+      "contractAddress": null,
+      "logs": [],
+      "status": "0x1",
+      "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "type": "0x2",
+      "effectiveGasPrice": "0xb2d05e18"
+    }
+  ],
+  "libraries": [],
+  "pending": [],
+  "returns": {},
+  "timestamp": 1698179629,
+  "chain": 11155111,
+  "multi": false,
+  "commit": "83ced78"
+}

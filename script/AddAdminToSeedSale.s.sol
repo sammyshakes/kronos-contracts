@@ -5,7 +5,7 @@ pragma solidity ^0.8.13;
 import "forge-std/Script.sol";
 import "../src/KronosSeedSale.sol";
 
-contract AddToWhitelist is Script {
+contract AddAdminToSeedSale is Script {
     uint256 deployerPrivateKey = uint256(vm.envBytes32("TESTNET_DEV_DEPLOYER_PRIVATE_KEY"));
 
     address public whitlistAddy1 = vm.envAddress("TESTNET_DEV_DEPLOYER_ADDRESS");
@@ -15,9 +15,7 @@ contract AddToWhitelist is Script {
 
     KronosSeedSale public seedSaleContract;
 
-    uint256 public metaId = 2;
-    // address[] wallets = [whitlistAddy1, whitlistAddy2, address(0x3)];
-    address[] wallets = [0x858a3D9ceC8502604bA4e90A4e530b097127BC2f];
+    address[] admins = [whitlistAddy2, address(0x3)];
 
     function run() external {
         seedSaleContract = KronosSeedSale(seedSaleContractAddress);
@@ -26,7 +24,7 @@ contract AddToWhitelist is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // Add an address to the whitelist
-        seedSaleContract.addToWhitelist(wallets, metaId);
+        seedSaleContract.addAdmins(admins);
 
         vm.stopBroadcast();
     }

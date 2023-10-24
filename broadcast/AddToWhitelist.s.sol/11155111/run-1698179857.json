@@ -1,0 +1,37 @@
+{
+  "transactions": [
+    {
+      "hash": "0x7631a0f4d5f744e369a28271309b3cb087d1aa02a1a3326086da56c08307b41a",
+      "transactionType": "CALL",
+      "contractName": "KronosSeedSale",
+      "contractAddress": "0xc5ac2217ad9F65B91863Ba8652d9EB2Bfed71156",
+      "function": "addToWhitelist(address[],uint256)",
+      "arguments": [
+        "[0x744e054a911A89938B0f88043e14bE48A0f8BEc9, 0x42C7eF198f8aC9888E2B1b73e5B71f1D4535194A, 0x0000000000000000000000000000000000000003]",
+        "1"
+      ],
+      "transaction": {
+        "type": "0x02",
+        "from": "0x744e054a911a89938b0f88043e14be48a0f8bec9",
+        "to": "0xc5ac2217ad9f65b91863ba8652d9eb2bfed71156",
+        "gas": "0x24a34",
+        "value": "0x0",
+        "data": "0xed740946000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003000000000000000000000000744e054a911a89938b0f88043e14be48a0f8bec900000000000000000000000042c7ef198f8ac9888e2b1b73e5b71f1d4535194a0000000000000000000000000000000000000000000000000000000000000003",
+        "nonce": "0x2c0",
+        "accessList": []
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [],
+  "libraries": [],
+  "pending": [
+    "0x7631a0f4d5f744e369a28271309b3cb087d1aa02a1a3326086da56c08307b41a"
+  ],
+  "returns": {},
+  "timestamp": 1698179857,
+  "chain": 11155111,
+  "multi": false,
+  "commit": "83ced78"
+}
