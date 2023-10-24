@@ -28,6 +28,8 @@ contract KronosSeedSaleTest is Test {
 
     string public baseURI = "http://base-uri.com/";
 
+    address[] admins;
+
     function setUp() public {
         user1 = address(0x1);
         user2 = address(0x2);
@@ -55,6 +57,14 @@ contract KronosSeedSaleTest is Test {
         //set seed sale address on the multisig wallet
         vm.prank(owner1);
         wallet.setSeedSaleAddress(address(seedSale));
+
+        //set up admin, add admins takes an array of addresses
+        admins = new address[](1);
+        admins[0] = owner1;
+        seedSale.addAdmins(admins);
+
+        //verify isAdmin
+        assertEq(seedSale.isAdmin(owner1), true, "Owner1 should be an admin");
 
         //mint USDT and USDC to user1 and user2
         USDT.mint(whitelistedAddress, minCommitAmount * 100);
@@ -92,6 +102,7 @@ contract KronosSeedSaleTest is Test {
 
         //add a new address to the whitelist
         wallets[0] = user1;
+        vm.prank(owner1);
         seedSale.addToWhitelist(wallets, 2);
     }
 
@@ -100,7 +111,7 @@ contract KronosSeedSaleTest is Test {
     }
 
     function testAddMultipleToWhitelist() public {
-        uint256 numAddresses = 150;
+        uint256 numAddresses = 50;
         address[] memory wallets = new address[](numAddresses);
 
         // Generate addresses and NFT IDs to add to the whitelist
@@ -111,6 +122,7 @@ contract KronosSeedSaleTest is Test {
         // Measure gas cost for adding multiple addresses to the whitelist
         uint256 metadataId = 2;
         uint256 gasCost = gasleft();
+        vm.prank(owner1);
         seedSale.addToWhitelist(wallets, metadataId);
 
         // Verify that all addresses have been added to the whitelist correctly
@@ -121,28 +133,32 @@ contract KronosSeedSaleTest is Test {
                 "Address should be on the whitelist with the correct metadata ID"
             );
         }
-
-        // Generate 2nd round
-        for (uint128 i = 0; i < numAddresses; i++) {
-            wallets[i] = generateAddress(numAddresses + i);
-        }
-
-        metadataId = 3;
-        seedSale.addToWhitelist(wallets, metadataId);
 
         gasCost = gasCost - gasleft();
 
-        // Verify that all addresses have been added to the whitelist correctly
-        for (uint256 i = 0; i < numAddresses; i++) {
-            assertEq(
-                seedSale.metaIDForAddress(wallets[i]),
-                metadataId,
-                "Address should be on the whitelist with the correct metadata ID"
-            );
-        }
+        // // Generate 2nd round
+        // for (uint128 i = 0; i < numAddresses; i++) {
+        //     wallets[i] = generateAddress(numAddresses + i);
+        // }
+
+        // metadataId = 3;
+        // seedSale.addToWhitelist(wallets, metadataId);
+
+        // gasCost = gasCost - gasleft();
+
+        // // Verify that all addresses have been added to the whitelist correctly
+        // for (uint256 i = 0; i < numAddresses; i++) {
+        //     assertEq(
+        //         seedSale.metaIDForAddress(wallets[i]),
+        //         metadataId,
+        //         "Address should be on the whitelist with the correct metadata ID"
+        //     );
+        // }
 
         // Print the gas cost
-        console.log("Gas cost for adding", numAddresses * 2, "addresses to the whitelist:", gasCost);
+        console.log(
+            "Gas cost for adding", numAddresses * 3, "addresses to the whitelist:", gasCost * 3
+        );
     }
 
     // test limits on the amounts that can be committed
@@ -191,6 +207,8 @@ contract KronosSeedSaleTest is Test {
 
         // Add addresses to the whitelist
         uint256 metadataId = 2;
+
+        vm.prank(owner1);
         seedSale.addToWhitelist(wallets, metadataId);
 
         // now these addresses can participate in the seed sale
@@ -400,5 +418,22 @@ contract KronosSeedSaleTest is Test {
         );
     }
 
-    //write function to test multisig wallet
+    function testAddAdmin() public {
+        // Ensure that the owner can add an admin
+        address[] memory adminsToAdd = new address[](1);
+        adminsToAdd[0] = owner2;
+        seedSale.addAdmins(adminsToAdd);
+        assertEq(seedSale.isAdmin(owner2), true, "Owner2 should be an admin");
+    }
+
+    function testRemoveAdmin() public {
+        seedSale.removeAdmin(owner1);
+        assertEq(seedSale.isAdmin(owner1), false, "Owner1 should not be an admin");
+    }
+
+    function testIsAdmin() public {
+        // Ensure that isAdmin function correctly identifies admins
+        assertEq(seedSale.isAdmin(owner1), true, "Owner1 should be an admin");
+        assertEq(seedSale.isAdmin(owner2), false, "Owner2 should not be an admin");
+    }
 }

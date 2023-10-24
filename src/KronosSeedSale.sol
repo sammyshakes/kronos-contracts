@@ -31,6 +31,7 @@ contract KronosSeedSale is Owned, ERC721 {
     mapping(address => uint256) public USDTokenAmountCommitted;
     mapping(uint256 => uint256) public tokenIdToMetadataId;
     mapping(address => uint256) public metaIDForAddress;
+    mapping(address => bool) private _admins;
 
     event Payment(address from, uint256 amount, bool USDT);
 
@@ -39,7 +40,7 @@ contract KronosSeedSale is Owned, ERC721 {
     /// @param _USDC The address of the USDC contract
     /// @param _baseURI The base URI for the token metadata
     constructor(address _USDT, address _USDC, address _withdraw, string memory _baseURI)
-        ERC721("Kronos Offical Seed Sale NFT", "TITAN")
+        ERC721("Kronos Titans", "TITAN")
         Owned(msg.sender)
     {
         USDT = _USDT;
@@ -58,7 +59,8 @@ contract KronosSeedSale is Owned, ERC721 {
     /// @param wallets The addresses to add to the whitelist
     /// @param metadataId The metadata id to assign to these address
     /// @dev The metadata id is the id of the metadata json file that will be used for the token uri
-    function addToWhitelist(address[] calldata wallets, uint256 metadataId) external onlyOwner {
+    function addToWhitelist(address[] calldata wallets, uint256 metadataId) external {
+        require(_admins[msg.sender] || msg.sender == owner, "Only admins can call this function");
         for (uint256 i; i < wallets.length; i++) {
             require(
                 metaIDForAddress[wallets[i]] == 0 && USDTokenAmountCommitted[wallets[i]] == 0,
@@ -66,6 +68,14 @@ contract KronosSeedSale is Owned, ERC721 {
             );
             metaIDForAddress[wallets[i]] = metadataId;
         }
+    }
+
+    /// @notice Check if an address is whitelisted
+    /// @param wallet The address to check
+    /// @return True if the address is whitelisted, false otherwise
+    /// @dev An address is whitelisted if it has a metadata id or has made a payment
+    function isWhitelisted(address wallet) external view returns (bool) {
+        return metaIDForAddress[wallet] > 0 || USDTokenAmountCommitted[wallet] > 0;
     }
 
     /// @notice Participate in the seed sale with USDT, if whitelisted
@@ -167,5 +177,26 @@ contract KronosSeedSale is Owned, ERC721 {
     function withdrawTokens(address token) external {
         require(msg.sender == withdrawAddress, "Only the withdraw address can call this function");
         IERC20(token).transfer(msg.sender, IERC20(token).balanceOf(address(this)));
+    }
+
+    /// @notice Adds multiple admins to the contract.
+    /// @param admins The addresses of the new admins.
+    function addAdmins(address[] calldata admins) external onlyOwner {
+        for (uint256 i = 0; i < admins.length; i++) {
+            _admins[admins[i]] = true;
+        }
+    }
+
+    /// @notice Removes an admin from the contract.
+    /// @param admin The address of the admin to remove.
+    function removeAdmin(address admin) external onlyOwner {
+        _admins[admin] = false;
+    }
+
+    /// @notice Checks if an address is an admin of the contract.
+    /// @param admin The address to check.
+    /// @return True if the address is an admin, false otherwise.
+    function isAdmin(address admin) external view returns (bool) {
+        return _admins[admin];
     }
 }
