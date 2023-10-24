@@ -62,10 +62,7 @@ contract KronosSeedSale is Owned, ERC721 {
     function addToWhitelist(address[] calldata wallets, uint256 metadataId) external {
         require(_admins[msg.sender] || msg.sender == owner, "Only admins can call this function");
         for (uint256 i; i < wallets.length; i++) {
-            require(
-                metaIDForAddress[wallets[i]] == 0 && USDTokenAmountCommitted[wallets[i]] == 0,
-                "Address is already on the whitelist"
-            );
+            require(!isWhitelisted(wallets[i]), "Address is already on the whitelist");
             metaIDForAddress[wallets[i]] = metadataId;
         }
     }
@@ -74,7 +71,7 @@ contract KronosSeedSale is Owned, ERC721 {
     /// @param wallet The address to check
     /// @return True if the address is whitelisted, false otherwise
     /// @dev An address is whitelisted if it has a metadata id or has made a payment
-    function isWhitelisted(address wallet) external view returns (bool) {
+    function isWhitelisted(address wallet) public view returns (bool) {
         return metaIDForAddress[wallet] > 0 || USDTokenAmountCommitted[wallet] > 0;
     }
 
