@@ -104,6 +104,10 @@ contract KronosSeedSaleTest is Test {
         wallets[0] = user1;
         vm.prank(owner1);
         seedSale.addToWhitelist(wallets, 2);
+
+        // Verify that the address has been added to the whitelist
+        bool isWhitelisted = seedSale.isWhitelisted(user1);
+        assertEq(isWhitelisted, true, "User1 should be whitelisted");
     }
 
     function generateAddress(uint256 index) internal pure returns (address) {
@@ -358,6 +362,11 @@ contract KronosSeedSaleTest is Test {
         vm.expectRevert();
         seedSale.mint();
         vm.stopPrank();
+
+        //ensure that the address is stll listed as "whitelisted"
+        // Verify that the address is no longer whitelisted after minting
+        bool isWhitelistedAfter = seedSale.isWhitelisted(whitelistedAddress);
+        assertEq(isWhitelistedAfter, true, "Address should stll be listed as whitelisted");
     }
 
     function testSetBaseURI() public {
