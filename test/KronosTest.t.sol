@@ -168,7 +168,13 @@ contract KronosSeedSaleTest is Test {
     // test limits on the amounts that can be committed
     function testCommitLimits() public {
         seedSale.flipSeedSaleActive();
+
+        //try to pay less than the limit of 250e6
         vm.startPrank(whitelistedAddress);
+        USDT.approve(address(seedSale), minCommitAmount - 1);
+        vm.expectRevert();
+        seedSale.payWithUSDT(minCommitAmount - 1);
+
         USDT.approve(address(seedSale), minCommitAmount);
         seedSale.payWithUSDT(minCommitAmount);
         vm.stopPrank();
@@ -182,12 +188,9 @@ contract KronosSeedSaleTest is Test {
         USDT.approve(address(seedSale), 1);
         vm.expectRevert();
         seedSale.payWithUSDT(maxCommitAmount + 1);
-        vm.stopPrank();
 
-        //try to pay less than the limit of 250e6
-        vm.startPrank(whitelistedAddress);
+        // It should be ok to add deposits less than 250e6 if minimum has already been reached
         USDT.approve(address(seedSale), minCommitAmount - 1);
-        vm.expectRevert();
         seedSale.payWithUSDT(minCommitAmount - 1);
         vm.stopPrank();
     }
@@ -241,7 +244,12 @@ contract KronosSeedSaleTest is Test {
         seedSale.flipSeedSaleActive();
         uint256 initialContractBalance = USDC.balanceOf(address(seedSale));
 
+        // try to pay less than the min
         vm.startPrank(whitelistedAddress);
+        USDC.approve(address(seedSale), minCommitAmount - 1);
+        vm.expectRevert();
+        seedSale.payWithUSDC(minCommitAmount - 1);
+
         // Approve USDC transfer
         USDC.approve(address(seedSale), minCommitAmount);
         seedSale.payWithUSDC(minCommitAmount);
@@ -262,12 +270,9 @@ contract KronosSeedSaleTest is Test {
         USDC.approve(address(seedSale), minCommitAmount * 100);
         vm.expectRevert();
         seedSale.payWithUSDC(minCommitAmount * 100);
-        vm.stopPrank();
 
-        // try to pay less than the min
-        vm.startPrank(whitelistedAddress);
+        // It should be ok to add deposits less than 250e6 if minimum has already been reached
         USDC.approve(address(seedSale), minCommitAmount - 1);
-        vm.expectRevert();
         seedSale.payWithUSDC(minCommitAmount - 1);
         vm.stopPrank();
     }
@@ -276,7 +281,12 @@ contract KronosSeedSaleTest is Test {
         seedSale.flipSeedSaleActive();
         uint256 initialContractBalance = USDT.balanceOf(address(seedSale));
 
+        // try to pay less than the min
         vm.startPrank(whitelistedAddress);
+        USDT.approve(address(seedSale), minCommitAmount - 1);
+        vm.expectRevert();
+        seedSale.payWithUSDT(minCommitAmount - 1);
+
         // Approve USDT transfer
         USDT.approve(address(seedSale), minCommitAmount);
         seedSale.payWithUSDT(minCommitAmount);
@@ -297,12 +307,9 @@ contract KronosSeedSaleTest is Test {
         USDT.approve(address(seedSale), minCommitAmount * 100);
         vm.expectRevert();
         seedSale.payWithUSDT(minCommitAmount * 100);
-        vm.stopPrank();
 
-        // try to pay less than the min
-        vm.startPrank(whitelistedAddress);
+        // It should be ok to add deposits less than 250e6 if minimum has already been reached
         USDT.approve(address(seedSale), minCommitAmount - 1);
-        vm.expectRevert();
         seedSale.payWithUSDT(minCommitAmount - 1);
         vm.stopPrank();
     }

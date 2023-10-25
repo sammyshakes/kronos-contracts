@@ -115,7 +115,7 @@ contract KronosSeedSale is Owned, ERC721 {
         }
 
         require(
-            amount >= MINIMUM_PAYMENT && totalCommittedByUser <= MAXIMUM_TOTAL_PAYMENT
+            totalCommittedByUser >= MINIMUM_PAYMENT && totalCommittedByUser <= MAXIMUM_TOTAL_PAYMENT
                 && totalUSDTokenAmountCommitted <= MAXIMUM_RAISE,
             "Invalid amount"
         );
