@@ -76,6 +76,13 @@ contract MultiSigWalletTest is Test {
         assertEq(address(wallet).balance, 100 ether, "Contract should have 100 ether");
     }
 
+    function testGetOwners() public {
+        address[] memory owners = wallet.getOwners();
+        assertEq(owners[0], owner1, "Owner 1 should be owner 1");
+        assertEq(owners[1], owner2, "Owner 2 should be owner 2");
+        assertEq(owners[2], owner3, "Owner 3 should be owner 3");
+    }
+
     function testSubmitTransaction() public {
         vm.prank(owner1);
         wallet.submitTransaction(owner1, 100, bytes("test"));
@@ -153,8 +160,12 @@ contract MultiSigWalletTest is Test {
         wallet.confirmTransaction(0);
         vm.stopPrank();
 
-        // Owner2 confirms
         vm.startPrank(owner2);
+        //owner 2 attempts to execute before numcomfirmaions is met - should fail
+        vm.expectRevert();
+        wallet.executeTransaction(0);
+
+        // Owner2 confirms
         wallet.confirmTransaction(0);
         vm.stopPrank();
 
@@ -171,6 +182,10 @@ contract MultiSigWalletTest is Test {
         // Owner1 submits a transaction
         vm.startPrank(owner1);
         wallet.submitTransaction(owner2, 100, "");
+        //owner1 attempts to revoke confirmation before confirming - should fail
+        vm.expectRevert();
+        wallet.revokeConfirmation(0);
+
         // Owner1 confirms
         wallet.confirmTransaction(0);
         vm.stopPrank();
@@ -246,6 +261,30 @@ contract MultiSigWalletTest is Test {
 
         // Check that the seedSale address has been updated
         assertEq(address(wallet.seedSale()), address(this), "Seed sale address should be updated");
+
+        //atempt to set the seedSale address to address(0) - should fail
+        vm.prank(owner1);
+        vm.expectRevert();
+        wallet.setSeedSaleAddress(address(0));
+    }
+
+    // test withdraw tokens from kronos seed sale before setting seed sale address - should fail
+    function testWithdrawTokensFromKronosSeedSale() public {
+        // deploy new seedsale and wallet
+        address[] memory owners = new address[](3);
+        owners[0] = owner1;
+        owners[1] = owner2;
+        owners[2] = owner3;
+
+        KronosMultiSig _wallet = new KronosMultiSig(owners, owner1, 2);
+
+        //mint tokens to wallet
+        token.mint(address(_wallet), 1000 ether);
+
+        // Owner1 withdraws tokens from the seed sale
+        vm.startPrank(owner1);
+        vm.expectRevert();
+        _wallet.withdrawTokensFromKronosSeedSale(address(token));
     }
 
     function testRequiredConfirmation() public {
@@ -272,7 +311,7 @@ contract MultiSigWalletTest is Test {
         wallet.executeTransaction(0);
         vm.stopPrank();
 
-        // Owner2 confirms (the required confirmation address)
+        // Owner1 confirms (the required confirmation address)
         vm.startPrank(owner1);
         wallet.confirmTransaction(0);
 
@@ -282,8 +321,9 @@ contract MultiSigWalletTest is Test {
         vm.stopPrank();
 
         // Check if the transaction was executed successfully
-        (,,, bool executed,) = wallet.getTransaction(0);
+        (,,, bool executed, uint256 confirmations) = wallet.getTransaction(0);
         assertTrue(executed, "Transaction should be executed");
+        assertEq(confirmations, 3, "Confirmation count should be 3");
     }
 
     // function testMultipleConfirmationsAndExecution() public {
