@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.21;
 
-import "solmate/auth/Owned.sol";
-import "solmate/tokens/ERC721.sol";
-import "solady/src/utils/LibString.sol";
-import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {Owned} from "solmate/auth/Owned.sol";
+import {ERC721} from "solmate/tokens/ERC721.sol";
+import {LibString} from "solady/src/utils/LibString.sol";
+import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 /// @title Kronos Seed Sale Contract
 /// @notice This contract is used to participate in the Kronos Seed Sale
