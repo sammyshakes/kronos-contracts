@@ -17,13 +17,11 @@ contract AddToWhitelist is Script {
 
     uint256 public metaId = 2;
     address[] wallets = [
-        whitlistAddy1,
-        whitlistAddy2,
-        0x396B244C1E40F10E607c4CC7d9dd36992C8Ec681,
-        0x858a3D9ceC8502604bA4e90A4e530b097127BC2f,
-        0x100444c7D04A842D19bc3eE63cB7b96682FF3f43
+        // whitlistAddy1,
+        // whitlistAddy2,
+        address(0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF),
+        address(0xbeEFdeaDBeefDeadBEeFDeAdbEeFDeaDbeefdEad)
     ];
-    // address[] wallets = [0x858a3D9ceC8502604bA4e90A4e530b097127BC2f];
 
     function run() external {
         seedSaleContract = KronosSeedSale(seedSaleContractAddress);
