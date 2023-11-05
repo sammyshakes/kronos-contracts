@@ -37,9 +37,9 @@ contract KronosSeedSaleTest is Test {
         whitelistedAddress = address(0x4);
 
         //setup the multisig wallet
-        owner1 = address(0x1);
-        owner2 = address(0x2);
-        owner3 = address(0x3);
+        owner1 = address(0x10);
+        owner2 = address(0x20);
+        owner3 = address(0x30);
 
         address[] memory owners = new address[](3);
         owners[0] = owner1;
@@ -96,14 +96,20 @@ contract KronosSeedSaleTest is Test {
         wallets[0] = whitelistedAddress;
 
         // Add an address to the whitelist
+        //attempt to add an address to the whitelist from a non admin address
+        vm.prank(user1);
+        vm.expectRevert();
+        seedSale.addToWhitelist(wallets, 2);
+
         //this one should fail because address is already on the whitelist
+        vm.startPrank(owner1);
         vm.expectRevert();
         seedSale.addToWhitelist(wallets, 2);
 
         //add a new address to the whitelist
         wallets[0] = user1;
-        vm.prank(owner1);
         seedSale.addToWhitelist(wallets, 2);
+        vm.stopPrank();
 
         // Verify that the address has been added to the whitelist
         bool isWhitelisted = seedSale.isWhitelisted(user1);
@@ -278,8 +284,23 @@ contract KronosSeedSaleTest is Test {
     }
 
     function testPayWithUSDT() public {
+        //attempt to pay with USDT before seed sale is active
+        vm.startPrank(whitelistedAddress);
+        USDT.approve(address(seedSale), minCommitAmount);
+        vm.expectRevert();
+        seedSale.payWithUSDT(minCommitAmount);
+        vm.stopPrank();
+
+        //set seed sale to active
         seedSale.flipSeedSaleActive();
         uint256 initialContractBalance = USDT.balanceOf(address(seedSale));
+
+        // try to pay if not whitelisted
+        vm.startPrank(user1);
+        USDT.approve(address(seedSale), minCommitAmount);
+        vm.expectRevert();
+        seedSale.payWithUSDT(minCommitAmount);
+        vm.stopPrank();
 
         // try to pay less than the min
         vm.startPrank(whitelistedAddress);
@@ -290,7 +311,6 @@ contract KronosSeedSaleTest is Test {
         // Approve USDT transfer
         USDT.approve(address(seedSale), minCommitAmount);
         seedSale.payWithUSDT(minCommitAmount);
-        vm.stopPrank();
 
         uint256 finalContractBalance = USDT.balanceOf(address(seedSale));
         uint256 committedAmount = seedSale.USDTokenAmountCommitted(whitelistedAddress);
@@ -303,7 +323,6 @@ contract KronosSeedSaleTest is Test {
         assertEq(committedAmount, minCommitAmount, "Committed amount should be updated");
 
         // try to pay more than the max
-        vm.startPrank(whitelistedAddress);
         USDT.approve(address(seedSale), minCommitAmount * 100);
         vm.expectRevert();
         seedSale.payWithUSDT(minCommitAmount * 100);
@@ -344,8 +363,20 @@ contract KronosSeedSaleTest is Test {
     }
 
     function testMint() public {
-        seedSale.flipSeedSaleActive();
+        //attempt to mint before seed sale is active
         vm.startPrank(whitelistedAddress);
+        vm.expectRevert();
+        seedSale.mint();
+        vm.stopPrank();
+
+        //set seed sale to active
+        seedSale.flipSeedSaleActive();
+
+        //attempt to mint if address has not made a payment
+        vm.startPrank(whitelistedAddress);
+        vm.expectRevert();
+        seedSale.mint();
+
         USDT.approve(address(seedSale), minCommitAmount);
         seedSale.payWithUSDT(minCommitAmount);
         seedSale.mint();
@@ -399,6 +430,10 @@ contract KronosSeedSaleTest is Test {
         tokenURI = seedSale.tokenURI(0);
         console.log("Token URI:", tokenURI);
         assertEq(tokenURI, "http://new-base-uri.com/1", "Token URI should be constructed correctly");
+
+        // attempt to get token URI for non-existent token
+        vm.expectRevert();
+        seedSale.tokenURI(1);
     }
 
     //test withdraw function
